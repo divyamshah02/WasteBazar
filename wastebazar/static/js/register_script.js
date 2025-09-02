@@ -18,7 +18,7 @@ let seller_detail_api_url = null;
 let categories_api_url = null;
 let preferred_category_api_url = null;
 
-async function LoginApp(csrf_token_param, otp_api_url_param, user_details_api_url_param, buyer_detail_api_url_param, seller_detail_api_url_param, categories_api_url_param, preferred_category_api_url_param) {
+async function registerApp(csrf_token_param, otp_api_url_param, user_details_api_url_param, buyer_detail_api_url_param, seller_detail_api_url_param, categories_api_url_param, preferred_category_api_url_param) {
     csrf_token = csrf_token_param;
     otp_api_url = otp_api_url_param;
     user_details_api_url = user_details_api_url_param;
@@ -27,7 +27,7 @@ async function LoginApp(csrf_token_param, otp_api_url_param, user_details_api_ur
     categories_api_url = categories_api_url_param;
     preferred_category_api_url = preferred_category_api_url_param;
 
-    console.log("🚀 Initializing WasteBazar Login Flow")
+    console.log("🚀 Initializing WasteBazar register Flow")
     console.log("🔧 CSRF Token:", csrf_token_param ? "Present" : "Missing");
     console.log("🔧 OTP API URL:", otp_api_url_param);
     console.log("🔧 User Details API URL:", user_details_api_url_param);
@@ -36,11 +36,11 @@ async function LoginApp(csrf_token_param, otp_api_url_param, user_details_api_ur
     console.log("🔧 Categories API URL:", categories_api_url_param);
     console.log("🔧 Preferred Category API URL:", preferred_category_api_url_param);
 
-    initializeLoginFlow()
+    initializeregisterFlow()
 }
 
 
-function initializeLoginFlow() {
+function initializeregisterFlow() {
     // Step 1: Role selection
     setupRoleSelection()
 
@@ -70,6 +70,13 @@ function getCsrfToken() {
 // Get appropriate redirect URL based on user role
 function getRedirectUrl(userRole) {
     console.log("🔄 Determining redirect URL for role:", userRole);
+
+    // Check if we're on a listing detail page and should redirect back to it
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/listing-detail/')) {
+        console.log("➡️ User is on listing detail page, redirecting back to same page");
+        return window.location.href; // Return current URL to stay on same listing detail page
+    }
 
     if (userRole === "seller" || userRole === "seller_individual" || userRole === "seller_corporate") {
         console.log("➡️ Redirecting to seller profile");
@@ -631,7 +638,7 @@ async function verifyOtp(otp) {
                 userId = result.data.user_id
 
                 if (result.data.user_details) {
-                    // User details already filled, redirect to appropriate profile
+                    // User details already filled, redirect to appropriate profile or back to listing detail
                     const userRole = result.data.user_role || selectedRole;
                     const is_approved = result.data.is_approved;
                     const profile_complete = result.data.profile_completed;
@@ -639,7 +646,7 @@ async function verifyOtp(otp) {
 
                     const redirectUrl = getRedirectUrl(userRole);
 
-                    showSuccess("Login successful! Redirecting...")
+                    showSuccess("register successful! Redirecting...")
 
                     // Store user info in localStorage for profile pages
                     localStorage.setItem('user_id', userId);
@@ -697,13 +704,13 @@ async function submitUserDetails() {
             formData = {
                 name: document.getElementById("fullName").value.trim(),
                 email: document.getElementById("email").value.trim(),
-                pan_number: panVal,
-                aadhar_number: aadharVal,
-                addressline1: document.getElementById("addressline1").value.trim(),
-                addressline2: document.getElementById("addressline2").value.trim(),
-                city: document.getElementById("cityname").value.trim(),
-                state: document.getElementById("statename").value.trim(),
-                address_pincode: document.getElementById("addresspincode").value.trim()
+                // pan_number: panVal,
+                // aadhar_number: aadharVal,
+                // addressline1: document.getElementById("addressline1").value.trim(),
+                // addressline2: document.getElementById("addressline2").value.trim(),
+                // city: document.getElementById("cityname").value.trim(),
+                // state: document.getElementById("statename").value.trim(),
+                // address_pincode: document.getElementById("addresspincode").value.trim()
             }
         } else {
             const idType = document.getElementById('corpIdSelect')?.value
@@ -715,11 +722,11 @@ async function submitUserDetails() {
                 email: document.getElementById("corporateEmail").value.trim(),
                 // Only include company details if they are filled
                 company_name: document.getElementById("companyName")?.value.trim() || '',
-                addressline1: document.getElementById("companyAddressLine1")?.value.trim() || '',
-                addressline2: document.getElementById("companyAddressLine2")?.value.trim() || '',
-                city: document.getElementById("companyCity")?.value.trim() || '',
-                state: document.getElementById("companyState")?.value.trim() || '',
-                address_pincode: document.getElementById("companyPincode")?.value.trim() || '',
+                // addressline1: document.getElementById("companyAddressLine1")?.value.trim() || '',
+                // addressline2: document.getElementById("companyAddressLine2")?.value.trim() || '',
+                // city: document.getElementById("companyCity")?.value.trim() || '',
+                // state: document.getElementById("companyState")?.value.trim() || '',
+                // address_pincode: document.getElementById("companyPincode")?.value.trim() || '',
             }
         }
 
@@ -730,9 +737,11 @@ async function submitUserDetails() {
 
             if (selectedType === "corporate" && selectedRole === "buyer") {
                 // Corporate buyer needs approval
+                const redirectUrl = getRedirectUrl(selectedRole);
+
                 setTimeout(() => {
                     // alert("Your corporate account is under review. You will be notified once approved.")
-                    window.location.href = "/buyer-profile"
+                    window.location.href = redirectUrl
                 }, 2000)
                 // Store user info in localStorage for profile pages
                 localStorage.setItem('user_id', userId);
@@ -743,7 +752,7 @@ async function submitUserDetails() {
                 localStorage.setItem('profile_complete', 'true');
 
             } else {
-                // Redirect to appropriate profile based on role
+                // Redirect to appropriate profile based on role, or back to listing detail if on that page
                 const redirectUrl = getRedirectUrl(selectedRole);
 
                 // Store user info in localStorage for profile pages
@@ -872,4 +881,4 @@ function autoFillOtpInputs(otp) {
 }
 
 
-console.log("🔐 WasteBazar Login System Initialized")
+console.log("🔐 WasteBazar Register System Initialized")

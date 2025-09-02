@@ -997,9 +997,9 @@ function setupEventListeners() {
       }
 
       // Show the login container
-      const loginContainer = document.getElementById("loginContainer");
-      if (loginContainer) {
-        loginContainer.style.display = "block";
+      const registerContainer = document.getElementById("registerContainer");
+      if (registerContainer) {
+        registerContainer.style.display = "block";
         console.log("✅ Login container displayed");
 
         // Pre-select "Buy Scrap" role
@@ -1056,9 +1056,9 @@ function setupEventListeners() {
       }
 
       // Show the login container
-      const loginContainer = document.getElementById("loginContainer");
-      if (loginContainer) {
-        loginContainer.style.display = "block";
+      const registerContainer = document.getElementById("registerContainer");
+      if (registerContainer) {
+        registerContainer.style.display = "block";
         console.log("✅ Login container displayed");
 
         // Start from step 1 for login flow
@@ -1079,23 +1079,23 @@ function setupEventListeners() {
   }
 
   // Close login container button
-  const closeLoginContainer = document.getElementById("closeLoginContainer")
-  if (closeLoginContainer) {
-    closeLoginContainer.addEventListener("click", function () {
-      const loginContainer = document.getElementById("loginContainer");
-      if (loginContainer) {
-        loginContainer.style.display = "none";
+  const closeregisterContainer = document.getElementById("closeregisterContainer")
+  if (closeregisterContainer) {
+    closeregisterContainer.addEventListener("click", function () {
+      const registerContainer = document.getElementById("registerContainer");
+      if (registerContainer) {
+        registerContainer.style.display = "none";
       }
     });
   }
 
   // Close login container when clicking outside the login card
-  const loginContainer = document.getElementById("loginContainer")
-  if (loginContainer) {
-    loginContainer.addEventListener("click", function (e) {
+  const registerContainer = document.getElementById("registerContainer")
+  if (registerContainer) {
+    registerContainer.addEventListener("click", function (e) {
       // Only close if clicking the container background, not the login card itself
-      if (e.target === loginContainer) {
-        loginContainer.style.display = "none";
+      if (e.target === registerContainer) {
+        registerContainer.style.display = "none";
       }
     });
   }
@@ -1107,7 +1107,29 @@ function getListingIdFromUrl() {
   return "1"
 }
 
+// function toggleFavorite() {
+//   const listingId = getListingIdFromUrl()
+//   const favorites = JSON.parse(localStorage.getItem("favorites") || "[]")
 
+//   if (isFavorited) {
+//     // Remove from favorites
+//     const index = favorites.indexOf(listingId)
+//     if (index > -1) {
+//       favorites.splice(index, 1)
+//     }
+//     isFavorited = false
+//   } else {
+//     // Add to favorites
+//     favorites.push(listingId)
+//     isFavorited = true
+//   }
+
+//   localStorage.setItem("favorites", JSON.stringify(favorites))
+//   updateFavoriteButton()
+
+//   // Show feedback
+//   showToast(isFavorited ? "Added to favorites" : "Removed from favorites")
+// }
 
 function updateFavoriteButton() {
   const btn = document.getElementById("favoriteBtn")

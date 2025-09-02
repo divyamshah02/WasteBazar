@@ -1021,7 +1021,7 @@
 }
 
 /* Profile Completion Styles */
-.profile-completion-card {
+/* .profile-completion-card {
     background: var(--gradient-primary);
     border-radius: 16px;
     padding: 1.5rem;
@@ -1030,7 +1030,7 @@
     box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
     position: relative;
     overflow: hidden;
-}
+} */
 
 
 
@@ -1066,7 +1066,7 @@
     gap: 1rem;
 }
 
-.progress {
+/* .progress {
     flex: 1;
     height: 8px;
     background: rgba(255, 255, 255, 0.2);
@@ -1084,7 +1084,7 @@
     font-size: 1rem;
     min-width: 45px;
     text-align: right;
-}
+} */
 
 .completion-action .btn {
     background: rgba(255, 255, 255, 0.2);

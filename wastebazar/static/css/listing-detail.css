@@ -1583,6 +1583,25 @@
   transition: all 0.3s ease;
 }
 
+#registerContainer .form-control {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  background: white;
+  border: 1px solid var(--border-color);
+}
+
+#registerContainer .form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+}
+
+#registerContainer .step-container {
+  position: relative;
+  z-index: 1;
+}
+
 .form-control:focus {
   outline: none;
   border-color: var(--primary-color);

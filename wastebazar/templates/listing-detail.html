@@ -462,12 +462,13 @@
         </div>
     </div>
 
-    <div class="login-container" id="loginContainer" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1060; background: rgba(0,0,0,0.5);">
-        <div class="login-card" style="margin: 5rem auto; max-height: 90vh; overflow-y: auto;">
-            <button type="button" class="btn-close" id="closeLoginContainer" style="position: absolute; top: 20px; right: 20px; z-index: 10;"></button>
-            <div class="login-header">
-                <h1 class="login-title">Welcome to WasteBazar</h1>
-                <p class="login-subtitle">Join India's leading scrap trading platform</p>
+
+    <div class="register-container" id="registerContainer" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1060; background: rgba(0,0,0,0.5);">
+        <div class="register-card" style="margin: 5rem auto; max-height: 90vh; overflow-y: auto;">
+            <button type="button" class="btn-close" id="closeregisterContainer" style="position: absolute; top: 20px; right: 20px; z-index: 10;"></button>
+            <div class="register-header">
+                <h1 class="register-title">Welcome to WasteBazar</h1>
+                <p class="register-subtitle">Join India's leading scrap trading platform</p>
             </div>
             
             <!-- Progress Indicator -->
@@ -829,8 +830,8 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <!-- API Caller -->
     <script src="/static/js/api_caller.js"></script>
-    <!-- Login Script -->
-    <script src="/static/js/login_script.js"></script>
+    <!-- register Script -->
+    <script src="/static/js/register_script.js"></script>
     <!-- Direct Login Script -->
     <script src="/static/js/direct_login.js"></script>
     <!-- Listing Detail Script -->
@@ -843,9 +844,9 @@
             // Get CSRF token
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
             
-            // Initialize login app with API endpoints
-            if (typeof LoginApp === 'function') {
-                LoginApp(
+            // Initialize register app with API endpoints
+            if (typeof registerApp === 'function') {
+                registerApp(
                     csrfToken,
                     '/user-api/otp-api/',
                     '/user-api/user-details-api/',
@@ -857,6 +858,7 @@
             }
         });
     </script>
+    
 </body>
 </html>
 </html>
