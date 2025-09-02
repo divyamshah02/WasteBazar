@@ -48,6 +48,7 @@ class User(AbstractUser):
     address_pincode = models.CharField(max_length=10, blank=True, null=True)
     is_approved = models.BooleanField(default=False)
     profile_completed = models.BooleanField(default=False)
+    preferred_category = models.BigIntegerField(null=True)
     is_deleted = models.BooleanField(default=False)
 
     # Override save to assign user_id automatically

@@ -746,14 +746,12 @@ function openContactModal() {
   const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
 
   if (!isLoggedIn) {
-    // Show login modal if not logged in
-    const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-    loginModal.show();
-
-    // Setup login modal functionality
-    setupLoginModal();
+    // Show login required modal if not logged in
+    const loginRequiredModal = new bootstrap.Modal(document.getElementById('loginRequiredModal'));
+    loginRequiredModal.show();
   } else {
-    // Show contact modal if logged in
+    // Load seller contact details and show contact modal if logged in
+    loadSellerContactDetails();
     const contactModal = new bootstrap.Modal(document.getElementById('contactModal'));
     contactModal.show();
   }
@@ -984,6 +982,123 @@ function setupEventListeners() {
 
   // Contact seller button
   document.querySelector(".btn-contact-seller").addEventListener("click", openContactModal)
+
+  // Register button - start registration flow with "Buy Scrap" pre-selected
+  const registerBtn = document.getElementById("registerBtn")
+  if (registerBtn) {
+    registerBtn.addEventListener("click", function () {
+      console.log("🔄 Register button clicked - starting registration flow");
+
+      // Hide the login required modal
+      const loginRequiredModal = bootstrap.Modal.getInstance(document.getElementById('loginRequiredModal'));
+      if (loginRequiredModal) {
+        loginRequiredModal.hide();
+        console.log("✅ Login required modal hidden");
+      }
+
+      // Show the login container
+      const loginContainer = document.getElementById("loginContainer");
+      if (loginContainer) {
+        loginContainer.style.display = "block";
+        console.log("✅ Login container displayed");
+
+        // Pre-select "Buy Scrap" role
+        const buyerCard = document.querySelector('#step1 .user-type-card[data-role="buyer"]');
+        if (buyerCard) {
+          // Remove selection from all cards in step 1
+          document.querySelectorAll('#step1 .user-type-card').forEach(card => {
+            card.classList.remove('selected');
+          });
+
+          // Select buyer card
+          buyerCard.classList.add('selected');
+          console.log("✅ Buyer card pre-selected");
+
+          // Set the selected role globally (this is used by login_script.js)
+          if (typeof selectedRole !== 'undefined') {
+            selectedRole = 'buyer';
+            console.log("✅ Global selectedRole set to:", selectedRole);
+          } else {
+            // Fallback: set on window object
+            window.selectedRole = 'buyer';
+            console.log("✅ Global selectedRole set on window to:", window.selectedRole);
+          }
+        }
+
+        // Skip to step 2 (User Type Selection)
+        if (typeof goToStep === 'function') {
+          setTimeout(() => {
+            goToStep(2);
+            console.log("✅ Navigated to step 2");
+          }, 100); // Small delay to ensure DOM is ready
+        } else {
+          console.error("❌ goToStep function not available");
+        }
+      } else {
+        console.error("❌ Login container not found");
+      }
+    });
+  } else {
+    console.warn("⚠️ Register button not found");
+  }
+
+  // Login button - show login container starting from step 1
+  const loginBtn = document.getElementById("loginBtn")
+  if (loginBtn) {
+    loginBtn.addEventListener("click", function () {
+      console.log("🔄 Login button clicked - starting login flow");
+
+      // Hide the login required modal
+      const loginRequiredModal = bootstrap.Modal.getInstance(document.getElementById('loginRequiredModal'));
+      if (loginRequiredModal) {
+        loginRequiredModal.hide();
+        console.log("✅ Login required modal hidden");
+      }
+
+      // Show the login container
+      const loginContainer = document.getElementById("loginContainer");
+      if (loginContainer) {
+        loginContainer.style.display = "block";
+        console.log("✅ Login container displayed");
+
+        // Start from step 1 for login flow
+        if (typeof goToStep === 'function') {
+          setTimeout(() => {
+            goToStep(1);
+            console.log("✅ Navigated to step 1 for login");
+          }, 100); // Small delay to ensure DOM is ready
+        } else {
+          console.error("❌ goToStep function not available");
+        }
+      } else {
+        console.error("❌ Login container not found");
+      }
+    });
+  } else {
+    console.warn("⚠️ Login button not found");
+  }
+
+  // Close login container button
+  const closeLoginContainer = document.getElementById("closeLoginContainer")
+  if (closeLoginContainer) {
+    closeLoginContainer.addEventListener("click", function () {
+      const loginContainer = document.getElementById("loginContainer");
+      if (loginContainer) {
+        loginContainer.style.display = "none";
+      }
+    });
+  }
+
+  // Close login container when clicking outside the login card
+  const loginContainer = document.getElementById("loginContainer")
+  if (loginContainer) {
+    loginContainer.addEventListener("click", function (e) {
+      // Only close if clicking the container background, not the login card itself
+      if (e.target === loginContainer) {
+        loginContainer.style.display = "none";
+      }
+    });
+  }
 }
 
 function getListingIdFromUrl() {
@@ -992,29 +1107,7 @@ function getListingIdFromUrl() {
   return "1"
 }
 
-function toggleFavorite() {
-  const listingId = getListingIdFromUrl()
-  const favorites = JSON.parse(localStorage.getItem("favorites") || "[]")
 
-  if (isFavorited) {
-    // Remove from favorites
-    const index = favorites.indexOf(listingId)
-    if (index > -1) {
-      favorites.splice(index, 1)
-    }
-    isFavorited = false
-  } else {
-    // Add to favorites
-    favorites.push(listingId)
-    isFavorited = true
-  }
-
-  localStorage.setItem("favorites", JSON.stringify(favorites))
-  updateFavoriteButton()
-
-  // Show feedback
-  showToast(isFavorited ? "Added to favorites" : "Removed from favorites")
-}
 
 function updateFavoriteButton() {
   const btn = document.getElementById("favoriteBtn")
@@ -1187,9 +1280,43 @@ function submitInquiryModal(event) {
   }, 1200)
 }
 
-function openContactModal() {
-  const modal = new bootstrap.Modal(document.getElementById("contactModal"))
-  modal.show()
+function loadSellerContactDetails() {
+  // If we have listing data, populate the contact modal with seller info
+  if (window.listingDetailApp && window.listingDetailApp.listingData) {
+    const listing = window.listingDetailApp.listingData;
+
+    // Update contact modal with seller details
+    const sellerPhone = document.getElementById('seller-phone');
+    const sellerEmail = document.getElementById('seller-email');
+    const callAction = document.getElementById('call-action');
+    const emailAction = document.getElementById('email-action');
+    const whatsappAction = document.getElementById('whatsapp-action');
+
+    if (listing.seller_phone) {
+      sellerPhone.textContent = listing.seller_phone;
+      callAction.href = `tel:${listing.seller_phone.replace(/\s+/g, '')}`;
+      whatsappAction.href = `https://wa.me/${listing.seller_phone.replace(/\D/g, '')}`;
+    } else {
+      sellerPhone.textContent = 'Not available';
+      callAction.style.display = 'none';
+      whatsappAction.style.display = 'none';
+    }
+
+    if (listing.seller_email) {
+      sellerEmail.textContent = listing.seller_email;
+      emailAction.href = `mailto:${listing.seller_email}`;
+    } else {
+      sellerEmail.textContent = 'Not available';
+      emailAction.style.display = 'none';
+    }
+  } else {
+    // Fallback contact info
+    document.getElementById('seller-phone').textContent = '+91 98765 43210';
+    document.getElementById('seller-email').textContent = 'contact@mumbairecyclers.com';
+    document.getElementById('call-action').href = 'tel:+919876543210';
+    document.getElementById('email-action').href = 'mailto:contact@mumbairecyclers.com';
+    document.getElementById('whatsapp-action').href = 'https://wa.me/919876543210';
+  }
 }
 
 function loadRelatedListings() {

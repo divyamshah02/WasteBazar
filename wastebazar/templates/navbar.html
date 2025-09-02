@@ -115,7 +115,7 @@
 <!-- Include Status Bar -->
 
 </nav>
-    {% include 'statusbar.html' %}
+{% include 'statusbar.html' %}
 
 
 <!-- Navbar Authentication Script -->
@@ -157,14 +157,16 @@
             if (userDropdown) userDropdown.style.display = 'block';
             if (guestNavItems) guestNavItems.style.display = 'none';
             if (userNavItems) userNavItems.style.display = 'flex';
-            
+           let userprofilelink='';
             // Show role-specific navigation items
             if (userRole && userRole.includes('buyer')) {
                 // Show Post Requirement for buyers
+                 userprofilelink = '/buyer-profile/';
                 if (buyerNavItem) buyerNavItem.style.display = 'block';
                 if (sellerNavItem) sellerNavItem.style.display = 'none';
                 console.log('👤 Showing buyer navigation (Post Requirement)');
             } else if (userRole && userRole.includes('seller')) {
+                 userprofilelink = '/seller-profile/';
                 // Show Post Listing for sellers
                 if (buyerNavItem) buyerNavItem.style.display = 'none';
                 if (sellerNavItem) sellerNavItem.style.display = 'block';
@@ -186,7 +188,7 @@
             
             // Set profile link based on user role
             if (userRole && profileLink) {
-                profileLink.href = '/'+userRole+'-profile/';
+                profileLink.href = userprofilelink;
             }
             
             // Handle logout

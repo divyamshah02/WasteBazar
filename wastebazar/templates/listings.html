@@ -17,47 +17,10 @@
     <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="/">WasteBazar</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/listings">
-                            <i class="fas fa-shopping-cart me-1"></i>Buy
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/requirements">
-                            <i class="fas fa-tags me-1"></i>Sell
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/listings">
-                            <i class="fas fa-plus-circle me-1"></i>Post Requirement
-                        </a>
-                    </li>
-                </ul>
-                <div class="d-flex gap-2">
-                    <a href="/directlogin" class="btn btn-outline-primary">
-                        <i class="fas fa-sign-in-alt me-1"></i>Login
-                    </a>
-                    <a href="/register" class="btn btn-registration">
-                        <i class="fas fa-user-plus me-1"></i>Register
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <!-- Navbar -->
-    {% comment %} {% include 'navbar.html' %} {% endcomment %}
     
-    <!-- Include Status Bar -->
-    {% include 'statusbar.html' %}
+    <!-- Navbar -->
+    {% include 'navbar.html' %}
+
     
     <!-- Top Advertisement Banner (Desktop Only) -->
     <div class="top-ad-banner  " id="topAd">

@@ -65,6 +65,7 @@
                 <div class="progress-dot" id="dot3"></div>
                 <div class="progress-dot" id="dot4"></div>
                 <div class="progress-dot" id="dot5"></div>
+                <div class="progress-dot" id="dot6"></div>
             </div>
             
             <!-- Error/Success Messages -->
@@ -167,9 +168,30 @@
                 </div>
             </div>
             
-            <!-- Step 5: User Details Form -->
-            <!-- Step 5: User Details Form -->
+            <!-- Step 5: Preferred Category Selection -->
             <div class="step-container step-hidden" id="step5">
+                <h3 class="text-center mb-4">Select Preferred Material</h3>
+                <p class="text-center text-muted mb-4">Choose your primary material category of interest</p>
+                <div class="form-group">
+                    <label class="form-label">Select Category</label>
+                    <div class="select-wrapper">
+                        <select class="form-control" id="preferredCategory" name="preferredCategory" required>
+                            <option value="">Choose a category...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <button class="btn-back" id="backStep4">
+                        <i class="fas fa-arrow-left me-2"></i>Back
+                    </button>
+                    <button class="btn-login flex-fill" id="nextStep5" disabled>
+                        Continue <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 6: User Details Form -->
+            <div class="step-container step-hidden" id="step6">
                 <h3 class="text-center mb-4">Complete Your Profile</h3>
                 <form id="userDetailsForm">
                     <!-- Individual Fields -->
@@ -184,54 +206,6 @@
                                 <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
                             </div>
                         </div>
-                        {% comment %} <div class="form-row">
-                            <div class="form-group" style="width:100%">
-                                <label class="form-label" for="individualIdSelect">Select ID Type</label>
-                                <div class="select-wrapper">
-                                    <select class="form-control" id="individualIdSelect" name="individualIdSelect">
-                                        <option value="pan" selected>PAN Number</option>
-                                        <option value="aadhar">Aadhar Card</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="form-group" id="individualPanGroup">
-                                    <label class="form-label" for="panNumber">PAN Number</label>
-                                    <input type="text" class="form-control" id="panNumber" name="panNumber" placeholder="Enter PAN number">
-                                </div>
-                                <div class="form-group" id="individualAadharGroup" style="display:none">
-                                    <label class="form-label" for="individualAadharNumber">Aadhar Number</label>
-                                    <input type="text" class="form-control" id="individualAadharNumber" name="individualAadharNumber" placeholder="Enter Aadhar number" maxlength="12">
-                                </div>
-                            </div>
-                        </div> {% endcomment %}
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" for="addressline1">Address Line 1 <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="addressline1" name="addressline1" placeholder="Enter your address" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="addressline2">Address Line 2 <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="addressline2" name="addressline2" placeholder="Enter your address" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" for="cityname">City <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="cityname" name="cityname" placeholder="Enter your city" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="statename">State <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="statename" name="statename" placeholder="Enter your state" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" for="addresspincode">Address Pincode <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="addresspincode" name="addresspincode" placeholder="Enter your address pincode" required>
-                            </div>
-                        </div>
-                        
                     </div>
                     
                     <!-- Corporate Fields -->
@@ -254,10 +228,15 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn-login">
-                        <span class="submit-text">Submit</span>
-                        
-                    </button>
+                    <div class="d-flex">
+                        <button type="button" class="btn-back" id="backStep5">
+                            <i class="fas fa-arrow-left me-2"></i>Back
+                        </button>
+                        <button type="submit" class="btn-login flex-fill">
+                            <span class="submit-text">Complete Registration</span>
+                            <i class="fas fa-check ms-2"></i>
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -271,7 +250,7 @@
     <script>
         // Pass the CSRF token and API endpoints 
         window.onload = async function () {
-            await LoginApp("{{ csrf_token }}", "/user-api/otp-api/", "/user-api/user-details-api/", "/user-api/buyer-detail-api/", "user-api/seller-detail-api/");
+            await LoginApp("{{ csrf_token }}", "/user-api/otp-api/", "/user-api/user-details-api/", "/user-api/buyer-detail-api/", "user-api/seller-detail-api/", "/marketplace-api/categories/", "/user-api/preferred-category-api/");
         }
     </script>
 </body>

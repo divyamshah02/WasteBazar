@@ -680,6 +680,405 @@ class SellerDetailviewSet(viewsets.ViewSet):
         }, status=status.HTTP_200_OK)
 
 
+class PreferredCategoryViewSet(viewsets.ViewSet):
+    """API to manage user's preferred category selection"""
+    
+    @handle_exceptions
+    # @check_authentication()
+    def update(self, request, pk=None):
+        """
+        API: Update user's preferred category
+        Used during registration flow and profile updates
+        """
+        user_id = pk
+        preferred_category = request.data.get('preferred_category')
+        
+        if not preferred_category:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": "preferred_category is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(user_id=user_id, is_deleted=False)
+        except User.DoesNotExist:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": "User not found with this ID."
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Validate that the category exists (import Category from MarketPlace)
+        try:
+            from MarketPlace.models import Category
+            category = Category.objects.get(category_id=preferred_category, is_active=True)
+        except Category.DoesNotExist:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": f"Category with ID {preferred_category} does not exist or is not active."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Update user's preferred category
+        user.preferred_category = preferred_category
+        user.save(update_fields=['preferred_category'])
+        
+        response_data = {
+            'user_id': user.user_id,
+            'preferred_category': user.preferred_category,
+            'category_name': category.title,
+            'updated_at': timezone.now()
+        }
+        
+        return Response({
+            "success": True,
+            "user_not_logged_in": False,
+            "user_unauthorized": False,
+            "data": response_data,
+            "error": None
+        }, status=status.HTTP_200_OK)
+    
+    @handle_exceptions
+    # @check_authentication()
+    def retrieve(self, request, pk=None):
+        """
+        API: Get user's current preferred category
+        """
+        user_id = pk
+        
+        try:
+            user = User.objects.get(user_id=user_id, is_deleted=False)
+        except User.DoesNotExist:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": "User not found with this ID."
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        response_data = {
+            'user_id': user.user_id,
+            'preferred_category': user.preferred_category,
+            'category_name': None
+        }
+        
+        # Get category name if preferred category is set
+        if user.preferred_category:
+            try:
+                from MarketPlace.models import Category
+                category = Category.objects.get(category_id=user.preferred_category, is_active=True)
+                response_data['category_name'] = category.title
+            except Category.DoesNotExist:
+                response_data['category_name'] = 'Category not found'
+        
+        return Response({
+            "success": True,
+            "user_not_logged_in": False,
+            "user_unauthorized": False,
+            "data": response_data,
+            "error": None
+        }, status=status.HTTP_200_OK)
+
+
+class ProfileCompletionViewSet(viewsets.ViewSet):
+    """API to get user profile completion status and percentage"""
+    
+    @handle_exceptions
+    # @check_authentication()
+    def retrieve(self, request, pk=None):
+        """
+        API: Get user profile completion details and calculate percentage
+        Returns basic user info + profile completion percentage
+        """
+        user_id = pk
+        
+        try:
+            # Get the user
+            user = User.objects.get(
+                user_id=user_id,
+                is_deleted=False
+            )
+        except User.DoesNotExist:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": "User not found with this ID."
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Calculate profile completion percentage based on user role
+        completion_data = self.calculate_profile_completion(user)
+        
+        # Prepare response data
+        response_data = {
+            'user_id': user.user_id,
+            'username': user.username,
+            'name': user.name,
+            'user_role': user.role,
+            'contact_number': user.contact_number,
+            'email': user.email,
+            'is_active': user.is_active,
+            'is_approved': user.is_approved,
+            'profile_completed': completion_data['is_complete'],
+            'completion_percentage': completion_data['percentage'],
+            'completion_details': completion_data['details'],
+            'missing_fields': completion_data['missing_fields']
+        }
+        
+        return Response({
+            "success": True,
+            "user_not_logged_in": False,
+            "user_unauthorized": False,
+            "data": response_data,
+            "error": None
+        }, status=status.HTTP_200_OK)
+    
+    def calculate_profile_completion(self, user):
+        """
+        Calculate profile completion percentage based on user role
+        Logic adapted from seller_profile.js calculateProfileCompletion function
+        """
+        completion_data = {
+            'percentage': 0,
+            'is_complete': False,
+            'details': {},
+            'missing_fields': []
+        }
+        
+        if user.role in ['seller_individual', 'seller_corporate']:
+            return self.calculate_seller_completion(user, completion_data)
+        elif user.role in ['buyer_individual', 'buyer_corporate']:
+            return self.calculate_buyer_completion(user, completion_data)
+        elif user.role == 'admin':
+            return self.calculate_admin_completion(user, completion_data)
+        else:
+            return completion_data
+    
+    def calculate_seller_completion(self, user, completion_data):
+        """Calculate completion for seller users - exact logic from sellerprofile.js"""
+        total_fields = 0
+        completed_fields = 0
+        missing_fields = []
+        
+        is_corporate = user.role == 'seller_corporate'
+        
+        if is_corporate:
+            # Corporate seller fields - matching JavaScript logic exactly
+            user_fields = ['name', 'email', 'contact_number']
+            corporate_fields = ['company_name', 'gst_number', 'addressline1', 'addressline2', 'city', 'state', 'address_pincode']
+            
+            # Total fields = user fields + corporate fields + 1 for ID field (PAN/CIN)
+            total_fields = len(user_fields) + len(corporate_fields) + 1
+            
+            # Check user fields
+            for field in user_fields:
+                field_value = getattr(user, field, None)
+                if field_value and str(field_value).strip():
+                    completed_fields += 1
+                else:
+                    missing_fields.append(f"user_{field}")
+            
+            # Check corporate fields
+            try:
+                corporate_details = CorporateUserDetail.objects.get(
+                    user_id=user.user_id,
+                    is_deleted=False
+                )
+                
+                for field in corporate_fields:
+                    field_value = getattr(corporate_details, field, None)
+                    if field_value and str(field_value).strip():
+                        completed_fields += 1
+                    else:
+                        missing_fields.append(f"corporate_{field}")
+                
+                # Check for PAN or CIN (count as one field - either is acceptable)
+                pan_number = getattr(corporate_details, 'pan_number', None)
+                cin_number = getattr(corporate_details, 'cin_number', None)
+                
+                if (pan_number and pan_number.strip()) or (cin_number and cin_number.strip()):
+                    completed_fields += 1
+                else:
+                    missing_fields.append("corporate_id_document")
+                    
+            except CorporateUserDetail.DoesNotExist:
+                # No corporate details found - all corporate fields missing
+                missing_fields.extend([f"corporate_{field}" for field in corporate_fields])
+                missing_fields.append("corporate_id_document")
+        else:
+            # Individual seller fields - matching JavaScript logic exactly
+            individual_fields = ['name', 'email', 'contact_number', 'addressline1', 'addressline2', 'city', 'state', 'address_pincode']
+            
+            # Total fields = individual fields + 1 for ID field (PAN/Aadhar)
+            total_fields = len(individual_fields) + 1
+            
+            for field in individual_fields:
+                field_value = getattr(user, field, None)
+                if field_value and str(field_value).strip():
+                    completed_fields += 1
+                else:
+                    missing_fields.append(field)
+            
+            # Check for PAN or Aadhar (count as one field - either is acceptable)
+            pan_number = getattr(user, 'pan_number', None)
+            aadhar_number = getattr(user, 'aadhar_number', None)
+            
+            if (pan_number and pan_number.strip()) or (aadhar_number and aadhar_number.strip()):
+                completed_fields += 1
+            else:
+                missing_fields.append("id_document")
+        
+        # Calculate percentage - matching JavaScript logic exactly
+        if total_fields > 0:
+            percentage = round((completed_fields / total_fields) * 100)
+            completion_data['percentage'] = min(percentage, 100)
+        else:
+            completion_data['percentage'] = 0
+            
+        completion_data['is_complete'] = completion_data['percentage'] == 100
+        completion_data['details'] = {
+            'total_fields': total_fields,
+            'completed_fields': completed_fields,
+            'role_type': user.role,
+            'is_corporate': is_corporate
+        }
+        completion_data['missing_fields'] = missing_fields
+        
+        return completion_data
+    
+    def calculate_buyer_completion(self, user, completion_data):
+        """Calculate completion for buyer users - similar logic to seller"""
+        total_fields = 0
+        completed_fields = 0
+        missing_fields = []
+        
+        is_corporate = user.role == 'buyer_corporate'
+        
+        if is_corporate:
+            # Corporate buyer fields
+            user_fields = ['name', 'email', 'contact_number']
+            corporate_fields = ['company_name', 'gst_number', 'addressline1', 'addressline2', 'city', 'state', 'address_pincode']
+            
+            total_fields = len(user_fields) + len(corporate_fields) + 1
+            
+            # Check user fields
+            for field in user_fields:
+                field_value = getattr(user, field, None)
+                if field_value and str(field_value).strip():
+                    completed_fields += 1
+                else:
+                    missing_fields.append(f"user_{field}")
+            
+            # Check corporate fields
+            try:
+                corporate_details = CorporateUserDetail.objects.get(
+                    user_id=user.user_id,
+                    is_deleted=False
+                )
+                
+                for field in corporate_fields:
+                    field_value = getattr(corporate_details, field, None)
+                    if field_value and str(field_value).strip():
+                        completed_fields += 1
+                    else:
+                        missing_fields.append(f"corporate_{field}")
+                
+                # Check for PAN or CIN
+                pan_number = getattr(corporate_details, 'pan_number', None)
+                cin_number = getattr(corporate_details, 'cin_number', None)
+                
+                if (pan_number and pan_number.strip()) or (cin_number and cin_number.strip()):
+                    completed_fields += 1
+                else:
+                    missing_fields.append("corporate_id_document")
+                    
+            except CorporateUserDetail.DoesNotExist:
+                missing_fields.extend([f"corporate_{field}" for field in corporate_fields])
+                missing_fields.append("corporate_id_document")
+        else:
+            # Individual buyer fields
+            individual_fields = ['name', 'email', 'contact_number', 'addressline1', 'addressline2', 'city', 'state', 'address_pincode']
+            total_fields = len(individual_fields) + 1
+            
+            for field in individual_fields:
+                field_value = getattr(user, field, None)
+                if field_value and str(field_value).strip():
+                    completed_fields += 1
+                else:
+                    missing_fields.append(field)
+            
+            # Check for PAN or Aadhar
+            pan_number = getattr(user, 'pan_number', None)
+            aadhar_number = getattr(user, 'aadhar_number', None)
+            
+            if (pan_number and pan_number.strip()) or (aadhar_number and aadhar_number.strip()):
+                completed_fields += 1
+            else:
+                missing_fields.append("id_document")
+        
+        # Calculate percentage
+        if total_fields > 0:
+            percentage = round((completed_fields / total_fields) * 100)
+            completion_data['percentage'] = min(percentage, 100)
+        else:
+            completion_data['percentage'] = 0
+            
+        completion_data['is_complete'] = completion_data['percentage'] == 100
+        completion_data['details'] = {
+            'total_fields': total_fields,
+            'completed_fields': completed_fields,
+            'role_type': user.role,
+            'is_corporate': is_corporate
+        }
+        completion_data['missing_fields'] = missing_fields
+        
+        return completion_data
+    
+    def calculate_admin_completion(self, user, completion_data):
+        """Calculate completion for admin users"""
+        total_fields = 0
+        completed_fields = 0
+        missing_fields = []
+        
+        # Admin required fields
+        admin_fields = ['name', 'email', 'contact_number']
+        total_fields = len(admin_fields)
+        
+        for field in admin_fields:
+            field_value = getattr(user, field, None)
+            if field_value and str(field_value).strip():
+                completed_fields += 1
+            else:
+                missing_fields.append(field)
+        
+        # Calculate percentage
+        if total_fields > 0:
+            percentage = round((completed_fields / total_fields) * 100)
+            completion_data['percentage'] = min(percentage, 100)
+        else:
+            completion_data['percentage'] = 0
+            
+        completion_data['is_complete'] = completion_data['percentage'] == 100
+        completion_data['details'] = {
+            'total_fields': total_fields,
+            'completed_fields': completed_fields,
+            'role_type': user.role,
+            'is_corporate': False
+        }
+        completion_data['missing_fields'] = missing_fields
+        
+        return completion_data
+
+
 class UpdateUserDetailsViewSet(viewsets.ViewSet):
     """Dedicated ViewSet for updating user profile details"""
     

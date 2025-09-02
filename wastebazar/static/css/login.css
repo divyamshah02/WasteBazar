@@ -317,6 +317,26 @@
     pointer-events: none;
 }
 
+/* Ensure form inputs work properly in modal context */
+#loginContainer .form-control {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+    background: white;
+    border: 1px solid var(--border-color);
+}
+
+#loginContainer .form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+}
+
+#loginContainer .step-container {
+    position: relative;
+    z-index: 1;
+}
+
 @media (max-width: 768px) {
     .login-card {
         padding: 2rem 1.5rem;

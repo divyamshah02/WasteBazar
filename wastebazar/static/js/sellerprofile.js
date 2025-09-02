@@ -1654,72 +1654,11 @@ function setupPanValidation(fieldId) {
 }
 
 /**
- * Calculate profile completion percentage for seller users
- */
-function calculateProfileCompletion(userDetails, corporateDetails) {
-    if (!userDetails) return 0;
-
-    const isCorporate = userDetails.role === 'seller_corporate';
-    let totalFields = 0;
-    let completedFields = 0;
-
-    if (isCorporate) {
-        // Corporate seller fields
-        const userFields = ['name', 'email', 'contact_number'];
-        const corporateFields = ['company_name', 'gst_number', 'addressline1', 'addressline2', 'city', 'state', 'address_pincode'];
-
-        // Total fields = user fields + corporate fields + 1 for ID field (PAN/CIN)
-        totalFields = userFields.length + corporateFields.length + 1;
-
-        // Check user fields
-        userFields.forEach(field => {
-            if (userDetails[field] && userDetails[field].toString().trim()) {
-                completedFields++;
-            }
-        });
-
-        // Check corporate fields (excluding PAN/CIN which we handle separately)
-        if (corporateDetails) {
-            corporateFields.forEach(field => {
-                if (corporateDetails[field] && corporateDetails[field].toString().trim()) {
-                    completedFields++;
-                }
-            });
-
-            // Check for PAN or CIN (count as one field - either is acceptable)
-            if ((corporateDetails.pan_number && corporateDetails.pan_number.trim()) ||
-                (corporateDetails.cin_number && corporateDetails.cin_number.trim())) {
-                completedFields++;
-            }
-        }
-    } else {
-        // Individual seller fields
-        const individualFields = ['name', 'email', 'contact_number', 'addressline1', 'addressline2', 'city', 'state', 'address_pincode'];
-
-        // Total fields = individual fields + 1 for ID field (PAN/Aadhar)
-        totalFields = individualFields.length + 1;
-
-        individualFields.forEach(field => {
-            if (userDetails[field] && userDetails[field].toString().trim()) {
-                completedFields++;
-            }
-        });
-
-        // Check for PAN or Aadhar (count as one field - either is acceptable)
-        if ((userDetails.pan_number && userDetails.pan_number.trim()) ||
-            (userDetails.aadhar_number && userDetails.aadhar_number.trim())) {
-            completedFields++;
-        }
-    }
-
-    const percentage = Math.round((completedFields / totalFields) * 100);
-    return Math.min(percentage, 100);
-}
-
-/**
- * Update profile completion UI
+ * Update profile completion UI using API data
  */
 function updateProfileCompletion(userDetails, corporateDetails) {
+    console.log('📋 Updating profile completion UI');
+
     const completionCard = document.getElementById('profileCompletionCard');
     const progressBar = document.getElementById('profileProgressBar');
     const progressText = document.getElementById('profileProgressText');
@@ -1729,62 +1668,106 @@ function updateProfileCompletion(userDetails, corporateDetails) {
         return;
     }
 
-    const completionPercentage = calculateProfileCompletion(userDetails, corporateDetails);
+    // Fetch completion data from the new API
+    fetchProfileCompletionFromApi(current_user_id).then(completionData => {
+        if (completionData) {
+            const completionPercentage = completionData.completion_percentage || 0;
 
-    // Update progress bar
-    progressBar.style.width = `${completionPercentage}%`;
-    progressBar.setAttribute('aria-valuenow', completionPercentage);
-    progressText.textContent = `${completionPercentage}%`;
+            console.log(`✅ Profile completion updated from API: ${completionPercentage}%`);
 
-    // Show/hide completion card based on completion percentage
-    if (completionPercentage < 100) {
-        completionCard.style.display = 'block';
+            // Update progress bar
+            progressBar.style.width = `${completionPercentage}%`;
+            progressBar.setAttribute('aria-valuenow', completionPercentage);
+            progressText.textContent = `${completionPercentage}%`;
 
-        // Update progress bar color based on completion
-        progressBar.classList.remove('bg-danger', 'bg-warning', 'bg-success');
-        if (completionPercentage < 30) {
-            progressBar.classList.add('bg-danger');
-        } else if (completionPercentage < 70) {
-            // progressBar.classList.add('bg-warning');
+            // Show/hide completion card based on completion percentage
+            if (completionPercentage < 100) {
+                completionCard.style.display = 'block';
+
+                // Update progress bar color based on completion
+                progressBar.classList.remove('bg-danger', 'bg-warning', 'bg-success');
+                if (completionPercentage < 30) {
+                    progressBar.classList.add('bg-danger');
+                } else if (completionPercentage < 70) {
+                    // progressBar.classList.add('bg-warning');
+                } else {
+                    progressBar.classList.add('bg-success');
+                }
+            } else {
+                completionCard.style.display = 'none';
+                localStorage.setItem('profile_complete', 'true');
+                localStorage.setItem('is_approved', completionData.is_approved ? 'true' : 'false');
+
+                console.log('✅ Profile complete - status:', completionData.is_approved ? 'approved' : 'awaiting approval');
+            }
+
+            // Update localStorage with fresh completion data
+            localStorage.setItem('profile_complete', completionData.profile_completed ? 'true' : 'false');
+            localStorage.setItem('is_approved', completionData.is_approved ? 'true' : 'false');
         } else {
-            progressBar.classList.add('bg-success');
+            console.log('⚠️ No completion data received from API');
+            completionCard.style.display = 'none';
         }
-    } else {
+    }).catch(error => {
+        console.error('❌ Failed to fetch profile completion:', error);
+        // Hide completion card on error
         completionCard.style.display = 'none';
-        localStorage.setItem('profile_complete', 'true');
-        localStorage.setItem('is_approved', 'false'); // Set to false when profile is complete but not yet approved
-
-        console.log('✅ Profile complete - awaiting approval');
-    }
-
-    console.log(`✅ Profile completion updated: ${completionPercentage}%`);
+    });
 }
 
 /**
- * Check and update profile completion status in localStorage
+ * Fetch profile completion data from API
  */
-function checkAndUpdateProfileCompletion() {
+async function fetchProfileCompletionFromApi(userId) {
     try {
-        // Get current user data
-        const userDetails = seller_data?.user_details;
-        const corporateDetails = seller_data?.corporate_details;
+        const apiUrl = `/user-api/profile-completion-api/${userId}/`;
+        const [success, response] = await callApi('GET', apiUrl, null, csrf_token);
 
-        if (!userDetails) {
-            console.log('⚠️ No user details available for profile completion check');
+        if (success && response.success) {
+            console.log('✅ Profile completion data fetched:', response.data);
+            return response.data;
+        } else {
+            console.error('❌ API error:', response.error);
+            return null;
+        }
+    } catch (error) {
+        console.error('❌ Network error fetching profile completion:', error);
+        return null;
+    }
+}
+
+/**
+ * Check and update profile completion status using API
+ */
+async function checkAndUpdateProfileCompletion() {
+    try {
+        if (!current_user_id) {
+            console.log('⚠️ No user ID available for profile completion check');
             return;
         }
 
-        // Calculate current completion percentage
-        const completionPercentage = calculateProfileCompletion(userDetails, corporateDetails);
+        console.log(`🔍 Checking profile completion via API for user: ${current_user_id}`);
 
+        // Fetch completion data from API
+        const completionData = await fetchProfileCompletionFromApi(current_user_id);
+
+        if (!completionData) {
+            console.error('❌ Failed to fetch profile completion data');
+            return;
+        }
+
+        const completionPercentage = completionData.completion_percentage || 0;
         console.log(`🔍 Profile completion check: ${completionPercentage}%`);
 
         if (completionPercentage >= 100) {
-
             // Profile is complete
             localStorage.setItem('profile_complete', 'true');
-            localStorage.setItem('is_approved', 'false'); // Set to false - awaiting approval
-            console.log('✅ Profile complete - localStorage updated (profile_complete: true, is_approved: false)');
+            localStorage.setItem('is_approved', completionData.is_approved ? 'true' : 'false');
+
+            console.log('✅ Profile complete - localStorage updated', {
+                profile_complete: 'true',
+                is_approved: completionData.is_approved ? 'true' : 'false'
+            });
 
             // Show success message about profile completion
             showSuccess('Profile completed! Your account is now under review for approval.');
@@ -1799,6 +1782,11 @@ function checkAndUpdateProfileCompletion() {
             // Profile is not complete
             localStorage.setItem('profile_complete', 'false');
             console.log(`📝 Profile incomplete (${completionPercentage}%) - localStorage updated (profile_complete: false)`);
+
+            // Show which fields are missing
+            if (completionData.missing_fields && completionData.missing_fields.length > 0) {
+                console.log('📝 Missing fields:', completionData.missing_fields);
+            }
         }
     } catch (error) {
         console.error('❌ Error checking profile completion:', error);

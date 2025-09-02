@@ -15,13 +15,17 @@ let otp_api_url = null;
 let user_details_api_url = null;
 let buyer_detail_api_url = null;
 let seller_detail_api_url = null;
+let categories_api_url = null;
+let preferred_category_api_url = null;
 
-async function LoginApp(csrf_token_param, otp_api_url_param, user_details_api_url_param, buyer_detail_api_url_param, seller_detail_api_url_param) {
+async function LoginApp(csrf_token_param, otp_api_url_param, user_details_api_url_param, buyer_detail_api_url_param, seller_detail_api_url_param, categories_api_url_param, preferred_category_api_url_param) {
     csrf_token = csrf_token_param;
     otp_api_url = otp_api_url_param;
     user_details_api_url = user_details_api_url_param;
     buyer_detail_api_url = buyer_detail_api_url_param;
     seller_detail_api_url = seller_detail_api_url_param;
+    categories_api_url = categories_api_url_param;
+    preferred_category_api_url = preferred_category_api_url_param;
 
     console.log("🚀 Initializing WasteBazar Login Flow")
     console.log("🔧 CSRF Token:", csrf_token_param ? "Present" : "Missing");
@@ -29,6 +33,8 @@ async function LoginApp(csrf_token_param, otp_api_url_param, user_details_api_ur
     console.log("🔧 User Details API URL:", user_details_api_url_param);
     console.log("🔧 Buyer Detail API URL:", buyer_detail_api_url_param);
     console.log("🔧 Seller Detail API URL:", seller_detail_api_url_param);
+    console.log("🔧 Categories API URL:", categories_api_url_param);
+    console.log("🔧 Preferred Category API URL:", preferred_category_api_url_param);
 
     initializeLoginFlow()
 }
@@ -47,7 +53,10 @@ function initializeLoginFlow() {
     // Step 4: OTP verification
     setupOtpVerification()
 
-    // Step 5: User details form
+    // Step 5: Preferred category selection
+    setupPreferredCategorySelection()
+
+    // Step 6: User details form
     setupUserDetailsForm()
 
     // Navigation buttons
@@ -265,11 +274,94 @@ function validateUserDetailsForm() {
     }
 }
 
+// Step 5: Preferred Category Selection
+function setupPreferredCategorySelection() {
+    const categorySelect = document.getElementById("preferredCategory")
+    const nextBtn = document.getElementById("nextStep5")
+
+    // Load categories when step is reached
+    loadCategories()
+
+    // Enable next button when category is selected
+    categorySelect.addEventListener("change", function () {
+        if (this.value) {
+            nextBtn.disabled = false
+            console.log("Selected preferred category:", this.value)
+        } else {
+            nextBtn.disabled = true
+        }
+    })
+
+    // Handle next button click
+    nextBtn.addEventListener("click", async () => {
+        if (categorySelect.value && userId) {
+            await savePreferredCategory(categorySelect.value)
+        }
+    })
+}
+
+// Load categories from API
+async function loadCategories() {
+    try {
+        console.log("📡 Loading categories from:", categories_api_url)
+
+        const [success, result] = await callApi('GET', categories_api_url, null, getCsrfToken())
+
+        if (success && result.success) {
+            const categories = result.data
+            const categorySelect = document.getElementById("preferredCategory")
+
+            // Clear existing options except the default one
+            categorySelect.innerHTML = '<option value="">Choose a category...</option>'
+
+            // Add category options
+            categories.forEach(category => {
+                const option = document.createElement('option')
+                option.value = category.category_id
+                option.textContent = category.title
+                categorySelect.appendChild(option)
+            })
+
+            console.log("✅ Loaded", categories.length, "categories")
+        } else {
+            console.error("❌ Failed to load categories:", result.error)
+            showError("Failed to load categories. Please try again.")
+        }
+    } catch (error) {
+        console.error("❌ Error loading categories:", error)
+        showError("Failed to load categories. Please try again.")
+    }
+}
+
+// Save preferred category
+async function savePreferredCategory(categoryId) {
+    try {
+        console.log("💾 Saving preferred category:", categoryId, "for user:", userId)
+
+        const [success, result] = await callApi('PUT', `${preferred_category_api_url}${userId}/`, {
+            preferred_category: categoryId
+        }, getCsrfToken())
+
+        if (success && result.success) {
+            console.log("✅ Preferred category saved successfully")
+            showSuccess("Preferred category selected!")
+            goToStep(6) // Go to user details form
+        } else {
+            console.error("❌ Failed to save preferred category:", result.error)
+            showError(result.error || "Failed to save preferred category")
+        }
+    } catch (error) {
+        console.error("❌ Error saving preferred category:", error)
+        showError("Failed to save preferred category. Please try again.")
+    }
+}
+
 // Navigation buttons
 function setupNavigationButtons() {
     document.getElementById("backStep1").addEventListener("click", () => goToStep(1))
     document.getElementById("backStep2").addEventListener("click", () => goToStep(2))
     document.getElementById("backStep3").addEventListener("click", () => goToStep(3))
+    document.getElementById("backStep4").addEventListener("click", () => goToStep(4))
 }
 
 // Navigation functions
@@ -295,6 +387,11 @@ function goToStep(step) {
 
     // Special handling for step 5
     if (step === 5) {
+        setupPreferredCategorySelection()
+    }
+
+    // Special handling for step 6
+    if (step === 6) {
         setupUserDetailsFields()
     }
 
@@ -303,7 +400,7 @@ function goToStep(step) {
 
 
 function updateProgressDots(step) {
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 6; i++) {
         const dot = document.getElementById(`dot${i}`)
         dot.classList.remove("active", "completed")
 

@@ -15,13 +15,13 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/listings.css">
     <link rel="stylesheet" href="/static/css/listing-detail.css">
+    <link rel="stylesheet" href="/static/css/login.css">
+    <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
     <!-- Navbar -->
     {% include 'navbar.html' %}
 
-    <!-- Include Status Bar -->
-    {% include 'statusbar.html' %}
 
     <!-- Top Advertisement Banner (Desktop Only) -->
     {% comment %} <div class="top-ad-banner d-none d-lg-block" id="topAd">
@@ -416,6 +416,246 @@
         </div>
     </div>
 
+    <!-- Login Required Modal -->
+    <div class="modal fade" id="loginRequiredModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-lock me-2"></i>
+                        Login Required
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="login-required-content">
+                        <div class="login-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h4>Please Login to View Contact Details</h4>
+                        <p class="text-muted">You need to be logged in to access seller contact information. This helps us maintain a secure and trusted marketplace.</p>
+                        
+                        <div class="login-benefits">
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span>Access seller contact details</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span>Send direct inquiries</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-primary" id="loginBtn">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Login
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="registerBtn">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Register
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-container" id="loginContainer" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1060; background: rgba(0,0,0,0.5);">
+        <div class="login-card" style="margin: 5rem auto; max-height: 90vh; overflow-y: auto;">
+            <button type="button" class="btn-close" id="closeLoginContainer" style="position: absolute; top: 20px; right: 20px; z-index: 10;"></button>
+            <div class="login-header">
+                <h1 class="login-title">Welcome to WasteBazar</h1>
+                <p class="login-subtitle">Join India's leading scrap trading platform</p>
+            </div>
+            
+            <!-- Progress Indicator -->
+            <div class="progress-indicator">
+                <div class="progress-dot active" id="dot1"></div>
+                <div class="progress-dot" id="dot2"></div>
+                <div class="progress-dot" id="dot3"></div>
+                <div class="progress-dot" id="dot4"></div>
+                <div class="progress-dot" id="dot5"></div>
+                <div class="progress-dot" id="dot6"></div>
+            </div>
+            
+            <!-- Error/Success Messages -->
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <!-- Step 1: User Role Selection -->
+            <div class="step-container" id="step1">
+                
+                <div class="user-type-grid">
+                    <div class="user-type-card" data-role="buyer">
+                        <div class="user-type-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="user-type-title">Buy Scrap</div>
+                        <div class="user-type-desc">Find sellers and purchase materials</div>
+                    </div>
+                    <div class="user-type-card" data-role="seller">
+                        <div class="user-type-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="user-type-title">Sell Scrap</div>
+                        <div class="user-type-desc">List materials and find buyers</div>
+                    </div>
+                </div>
+                <button class="btn-login" id="nextStep1" disabled>
+                    Continue <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+            
+            <!-- Step 2: User Type Selection -->
+            <div class="step-container step-hidden" id="step2">
+                <h3 class="text-center mb-4">Account Type</h3>
+                <div class="user-type-grid">
+                    <div class="user-type-card" data-type="individual">
+                        <div class="user-type-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-type-title">Individual</div>
+                        <div class="user-type-desc">Personal trading account</div>
+                    </div>
+                    <div class="user-type-card" data-type="corporate">
+                        <div class="user-type-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="user-type-title">Corporate</div>
+                        <div class="user-type-desc">Business trading account</div>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <button class="btn-back" id="backStep1">
+                        <i class="fas fa-arrow-left me-2"></i>Back
+                    </button>
+                    <button class="btn-login flex-fill" id="nextStep2" disabled>
+                        Continue <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+               <!-- Step 3: Mobile Number -->
+            <div class="step-container step-hidden" id="step3">
+                <h3 class="text-center mb-4">Mobile Verification</h3>
+                <div class="form-group">
+                    <label class="form-label">Mobile Number</label>
+                    <input type="tel" class="form-control" id="mobileNumber" placeholder="Enter your mobile number" maxlength="10">
+                </div>
+                <div class="d-flex">
+                    <button class="btn-back" id="backStep2">
+                        <i class="fas fa-arrow-left me-2"></i>Back
+                    </button>
+                    <button class="btn-login flex-fill" id="sendOtp">
+                        Send OTP <i class="fas fa-paper-plane ms-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            
+            <!-- Step 4: OTP Verification -->
+            <div class="step-container step-hidden" id="step4">
+                <h3 class="text-center mb-4">Enter OTP</h3>
+                <p class="text-center text-muted mb-4">We've sent a 6-digit code to <span id="displayMobile"></span></p>
+                <div class="otp-input-group">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+                <div class="d-flex">
+                    <button class="btn-back" id="backStep3">
+                        <i class="fas fa-arrow-left me-2"></i>Back
+                    </button>
+                    <button class="btn-login flex-fill" id="verifyOtp">
+                        Verify OTP <i class="fas fa-check ms-2"></i>
+                    </button>
+                </div>
+                <div class="resend-otp">
+                    <span class="resend-timer" id="resendTimer">Resend OTP in 30s</span>
+                    <a class="resend-link" id="resendOtp" style="display: none;">Resend OTP</a>
+                </div>
+            </div>
+            
+            <!-- Step 5: Preferred Category Selection -->
+            <div class="step-container step-hidden" id="step5">
+                <h3 class="text-center mb-4">Select Preferred Material</h3>
+                <p class="text-center text-muted mb-4">Choose your primary material category of interest</p>
+                <div class="form-group">
+                    <label class="form-label">Select Category</label>
+                    <div class="select-wrapper">
+                        <select class="form-control" id="preferredCategory" name="preferredCategory" required>
+                            <option value="">Choose a category...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <button class="btn-back" id="backStep4">
+                        <i class="fas fa-arrow-left me-2"></i>Back
+                    </button>
+                    <button class="btn-login flex-fill" id="nextStep5" disabled>
+                        Continue <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 6: User Details Form -->
+            <div class="step-container step-hidden" id="step6">
+                <h3 class="text-center mb-4">Complete Your Profile</h3>
+                <form id="userDetailsForm">
+                    <!-- Individual Fields -->
+                    <div id="individualFields">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="fullName">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Enter your full name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="email">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Corporate Fields -->
+                    <div id="corporateFields" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="contactName">Contact Person Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="contactName" name="contactName" placeholder="Enter contact person name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="corporateEmail">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="corporateEmail" name="corporateEmail" placeholder="Enter email address" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="companyName">Company Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="companyName" name="companyName" placeholder="Enter company name" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex">
+                        <button type="button" class="btn-back" id="backStep5">
+                            <i class="fas fa-arrow-left me-2"></i>Back
+                        </button>
+                        <button type="submit" class="btn-login flex-fill">
+                            <span class="submit-text">Complete Registration</span>
+                            <i class="fas fa-check ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
     <!-- Contact Modal -->
     <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -430,28 +670,28 @@
                             <i class="fas fa-phone"></i>
                             <div>
                                 <span class="contact-label">Phone</span>
-                                <span class="contact-value">+91 98765 43210</span>
+                                <span class="contact-value" id="seller-phone">Loading...</span>
                             </div>
                         </div>
                         <div class="contact-item">
                             <i class="fas fa-envelope"></i>
                             <div>
                                 <span class="contact-label">Email</span>
-                                <span class="contact-value">contact@mumbairecyclers.com</span>
+                                <span class="contact-value" id="seller-email">Loading...</span>
                             </div>
                         </div>
                        
                     </div>
                     <div class="contact-actions">
-                        <a href="tel:+919876543210" class="btn-contact-action">
+                        <a href="#" class="btn-contact-action" id="call-action">
                             <i class="fas fa-phone"></i>
                             Call Now
                         </a>
-                        <a href="mailto:contact@mumbairecyclers.com" class="btn-contact-action">
+                        <a href="#" class="btn-contact-action" id="email-action">
                             <i class="fas fa-envelope"></i>
                             Send Email
                         </a>
-                        <a href="https://wa.me/919876543210" class="btn-contact-action" target="_blank">
+                        <a href="#" class="btn-contact-action" id="whatsapp-action" target="_blank">
                             <i class="fab fa-whatsapp"></i>
                             WhatsApp
                         </a>
@@ -489,8 +729,8 @@
                             <input type="tel" id="inquiryPhoneModal" class="form-control" required>
                         </div>
                         <div class="form-group col-md-12">
-                            <label for="inquiryQuantityModal">Offer Price(Per unit)</label>
-                            <input type="number" id="inquiryQuantityModal" class="form-control" placeholder="Enter quantity">
+                            <label for="inquiryQuantityPriceModal">Offer Price(Per unit)</label>
+                            <input type="number" id="inquiryQuantityPriceModal" class="form-control" placeholder="Enter quantity">
                         </div>
                         
                         <div class="form-group">
@@ -587,8 +827,36 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- AOS Animation Library -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <!-- <script src="/static/js/listings.js"></script> -->
+    <!-- API Caller -->
+    <script src="/static/js/api_caller.js"></script>
+    <!-- Login Script -->
+    <script src="/static/js/login_script.js"></script>
+    <!-- Direct Login Script -->
+    <script src="/static/js/direct_login.js"></script>
+    <!-- Listing Detail Script -->
     <script src="/static/js/listing-detail.js"></script>
+    
+    <!-- Initialize Login App -->
+    <script>
+        // Initialize login functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            
+            // Initialize login app with API endpoints
+            if (typeof LoginApp === 'function') {
+                LoginApp(
+                    csrfToken,
+                    '/user-api/otp-api/',
+                    '/user-api/user-details-api/',
+                    '/user-api/buyer-details-api/',
+                    '/user-api/seller-details/',
+                    '/marketplace-api/categories/',
+                    '/user-api/preferred-category-api/'
+                );
+            }
+        });
+    </script>
 </body>
 </html>
 </html>
