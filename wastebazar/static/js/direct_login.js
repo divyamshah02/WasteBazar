@@ -33,8 +33,8 @@ class DirectLoginHandler {
     }
 
     setupMobileInput() {
-        const mobileInput = document.getElementById('mobileNumber');
-        const sendOtpBtn = document.getElementById('sendOtp');
+        const mobileInput = document.getElementById('loginMobileNumber');
+        const sendOtpBtn = document.getElementById('loginSendOtp');
 
         // Format mobile number input
         mobileInput.addEventListener('input', (e) => {
@@ -61,7 +61,7 @@ class DirectLoginHandler {
     }
 
     setupOtpInputs() {
-        const otpInputs = document.querySelectorAll('.otp-input');
+        const otpInputs = document.querySelectorAll('.login-otp-input');
 
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', (e) => {
@@ -107,22 +107,22 @@ class DirectLoginHandler {
     }
 
     setupSendOtp() {
-        const sendOtpBtn = document.getElementById('sendOtp');
+        const sendOtpBtn = document.getElementById('loginSendOtp');
         sendOtpBtn.addEventListener('click', () => this.sendOtp());
     }
 
     setupVerifyOtp() {
-        const verifyOtpBtn = document.getElementById('verifyOtp');
+        const verifyOtpBtn = document.getElementById('loginVerifyOtp');
         verifyOtpBtn.addEventListener('click', () => this.verifyOtp());
     }
 
     setupBackButton() {
-        const backBtn = document.getElementById('backStep1');
+        const backBtn = document.getElementById('loginBackStep1');
         backBtn.addEventListener('click', () => this.goBackToStep1());
     }
 
     setupResendOtp() {
-        const resendLink = document.getElementById('resendOtp');
+        const resendLink = document.getElementById('loginResendOtp');
         resendLink.addEventListener('click', () => {
             if (!resendLink.style.display || resendLink.style.display === 'none') return;
             this.sendOtp(true);
@@ -131,9 +131,9 @@ class DirectLoginHandler {
 
 
     async sendOtp(isResend = false) {
-        const mobileInput = document.getElementById('mobileNumber');
-        const sendOtpBtn = document.getElementById('sendOtp');
-        const btnText = sendOtpBtn.querySelector('.btn-text');
+        const mobileInput = document.getElementById('loginMobileNumber');
+        const sendOtpBtn = document.getElementById('loginSendOtp');
+        const btnText = sendOtpBtn.querySelector('.login-btn-text');
         const originalText = btnText.textContent;
 
         try {
@@ -201,8 +201,8 @@ class DirectLoginHandler {
     }
 
     async verifyOtp() {
-        const verifyOtpBtn = document.getElementById('verifyOtp');
-        const btnText = verifyOtpBtn.querySelector('.btn-text');
+        const verifyOtpBtn = document.getElementById('loginVerifyOtp');
+        const btnText = verifyOtpBtn.querySelector('.login-btn-text');
         const originalText = btnText.textContent;
 
         try {
@@ -280,7 +280,17 @@ class DirectLoginHandler {
     redirectBasedOnRole(userRole) {
         console.log('🚀 Redirecting user based on role:', userRole);
 
-        if (userRole.includes('seller')) {
+        // Check if we're currently on a listing detail page
+        const currentPath = window.location.pathname;
+        const isListingDetailPage = currentPath.includes('/listing-detail/') || currentPath.includes('/listing/');
+
+        if (isListingDetailPage) {
+            // If on listing detail page, redirect back to the same page
+            this.showSuccess('Welcome back! Redirecting to listing...');
+            setTimeout(() => {
+                window.location.reload(); // Reload the current page to update login state
+            }, 1500);
+        } else if (userRole.includes('seller')) {
             // Redirect to seller profile
             this.showSuccess('Welcome back! Redirecting to your seller profile...');
             setTimeout(() => {
@@ -302,7 +312,7 @@ class DirectLoginHandler {
     }
 
     getOtpValue() {
-        const otpInputs = document.querySelectorAll('.otp-input');
+        const otpInputs = document.querySelectorAll('.login-otp-input');
         // return Array.from(otpInputs).map(input => input.value).join('');
         return otpValue;
 
@@ -311,7 +321,7 @@ class DirectLoginHandler {
     checkOtpComplete() {
         const otp = this.getOtpValue();
         // const otp = otpValue;
-        const verifyOtpBtn = document.getElementById('verifyOtp');
+        const verifyOtpBtn = document.getElementById('loginVerifyOtp');
 
         if (otp.length === 6) {
             verifyOtpBtn.disabled = false;
@@ -327,7 +337,7 @@ class DirectLoginHandler {
     autoFillOtpInputs(otp) {
         console.log('🔄 Auto-filling OTP inputs with value:', otp);
 
-        const otpInputs = document.querySelectorAll('.otp-input');
+        const otpInputs = document.querySelectorAll('.login-otp-input');
         const otpString = otp.toString();
 
         // Clear all inputs first
@@ -350,7 +360,7 @@ class DirectLoginHandler {
 
         // Enable the verify button if OTP is complete
         if (otpString.length === 6) {
-            const verifyOtpBtn = document.getElementById('verifyOtp');
+            const verifyOtpBtn = document.getElementById('loginVerifyOtp');
             verifyOtpBtn.disabled = false;
 
             // Add visual feedback
@@ -365,19 +375,19 @@ class DirectLoginHandler {
 
     goToStep2() {
         // Update progress indicator
-        document.getElementById('dot1').classList.add('completed');
-        document.getElementById('dot1').classList.remove('active');
-        document.getElementById('dot2').classList.add('active');
+        document.getElementById('loginDot1').classList.add('completed');
+        document.getElementById('loginDot1').classList.remove('active');
+        document.getElementById('loginDot2').classList.add('active');
 
         // Hide step 1, show step 2
-        document.getElementById('step1').classList.add('step-hidden');
-        document.getElementById('step2').classList.remove('step-hidden');
+        document.getElementById('loginStep1').classList.add('login-step-hidden');
+        document.getElementById('loginStep2').classList.remove('login-step-hidden');
 
         // Update mobile number display
-        document.getElementById('displayMobile').textContent = `+91 ${this.mobileNumber}`;
+        document.getElementById('loginDisplayMobile').textContent = `+91 ${this.mobileNumber}`;
 
         // Focus on first OTP input
-        document.querySelector('.otp-input').focus();
+        document.querySelector('.login-otp-input').focus();
 
         this.currentStep = 2;
         console.log('📱 Moved to Step 2: OTP Verification');
@@ -385,16 +395,16 @@ class DirectLoginHandler {
 
     goBackToStep1() {
         // Update progress indicator
-        document.getElementById('dot2').classList.remove('active');
-        document.getElementById('dot1').classList.remove('completed');
-        document.getElementById('dot1').classList.add('active');
+        document.getElementById('loginDot2').classList.remove('active');
+        document.getElementById('loginDot1').classList.remove('completed');
+        document.getElementById('loginDot1').classList.add('active');
 
         // Show step 1, hide step 2
-        document.getElementById('step2').classList.add('step-hidden');
-        document.getElementById('step1').classList.remove('step-hidden');
+        document.getElementById('loginStep2').classList.add('login-step-hidden');
+        document.getElementById('loginStep1').classList.remove('login-step-hidden');
 
         // Clear OTP inputs
-        document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+        document.querySelectorAll('.login-otp-input').forEach(input => input.value = '');
         this.checkOtpComplete();
 
         // Clear any timer
@@ -407,8 +417,8 @@ class DirectLoginHandler {
     }
 
     startResendTimer() {
-        const resendTimer = document.getElementById('resendTimer');
-        const resendLink = document.getElementById('resendOtp');
+        const resendTimer = document.getElementById('loginResendTimer');
+        const resendLink = document.getElementById('loginResendOtp');
 
         this.resendTimer = 30;
         resendLink.style.display = 'none';
@@ -427,8 +437,8 @@ class DirectLoginHandler {
     }
 
     showError(message) {
-        const errorElement = document.getElementById('errorMessage');
-        const successElement = document.getElementById('successMessage');
+        const errorElement = document.getElementById('loginErrorMessage');
+        const successElement = document.getElementById('loginSuccessMessage');
 
         successElement.style.display = 'none';
         errorElement.textContent = message;
@@ -443,8 +453,8 @@ class DirectLoginHandler {
     }
 
     showSuccess(message) {
-        const errorElement = document.getElementById('errorMessage');
-        const successElement = document.getElementById('successMessage');
+        const errorElement = document.getElementById('loginErrorMessage');
+        const successElement = document.getElementById('loginSuccessMessage');
 
         errorElement.style.display = 'none';
         successElement.textContent = message;

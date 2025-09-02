@@ -988,7 +988,6 @@ function setupEventListeners() {
   if (registerBtn) {
     registerBtn.addEventListener("click", function () {
       console.log("🔄 Register button clicked - starting registration flow");
-
       // Hide the login required modal
       const loginRequiredModal = bootstrap.Modal.getInstance(document.getElementById('loginRequiredModal'));
       if (loginRequiredModal) {
@@ -1054,31 +1053,20 @@ function setupEventListeners() {
         loginRequiredModal.hide();
         console.log("✅ Login required modal hidden");
       }
-
-      // Show the login container
-      const registerContainer = document.getElementById("registerContainer");
-      if (registerContainer) {
-        registerContainer.style.display = "block";
+      const loginContainer = document.getElementById("loginContainer");
+      if (loginContainer) {
+        loginContainer.style.display = "";
         console.log("✅ Login container displayed");
 
-        // Start from step 1 for login flow
-        if (typeof goToStep === 'function') {
-          setTimeout(() => {
-            goToStep(1);
-            console.log("✅ Navigated to step 1 for login");
-          }, 100); // Small delay to ensure DOM is ready
-        } else {
-          console.error("❌ goToStep function not available");
-        }
-      } else {
-        console.error("❌ Login container not found");
+
       }
+
     });
   } else {
     console.warn("⚠️ Login button not found");
   }
 
-  // Close login container button
+  // Close register container button
   const closeregisterContainer = document.getElementById("closeregisterContainer")
   if (closeregisterContainer) {
     closeregisterContainer.addEventListener("click", function () {
@@ -1089,11 +1077,35 @@ function setupEventListeners() {
     });
   }
 
+  // Close login container button
+  const closeLoginContainer = document.getElementById("closeLoginContainer");
+  if (closeLoginContainer) {
+    closeLoginContainer.addEventListener("click", function () {
+      const loginContainer = document.getElementById("loginContainer");
+      if (loginContainer) {
+        loginContainer.style.display = "none";
+        console.log("✅ Login container closed");
+      }
+    });
+  }
+
   // Close login container when clicking outside the login card
+  const loginContainer = document.getElementById("loginContainer");
+  if (loginContainer) {
+    loginContainer.addEventListener("click", function (e) {
+      // Only close if clicking the container background, not the login card itself
+      if (e.target === loginContainer) {
+        loginContainer.style.display = "none";
+        console.log("✅ Login container closed by clicking outside");
+      }
+    });
+  }
+
+  // Close register container when clicking outside the register card
   const registerContainer = document.getElementById("registerContainer")
   if (registerContainer) {
     registerContainer.addEventListener("click", function (e) {
-      // Only close if clicking the container background, not the login card itself
+      // Only close if clicking the container background, not the register card itself
       if (e.target === registerContainer) {
         registerContainer.style.display = "none";
       }

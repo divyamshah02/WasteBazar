@@ -9,72 +9,58 @@
         
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
-                <!-- Categories and Marketplace for non-logged users -->
-                <div id="guest-nav-items">
-                    <li class="nav-item dropdown mega-dropdown">
-                        <a class="nav-link" href="#" id="categoriesDropdown" role="button" aria-expanded="false">
-                            <i class="fas fa-th-list me-1"></i>Categories
-                        </a>
-                        <div class="dropdown-menu mega-dropdown-menu">
-                            <div class="container">
-                                <div class="row">
-                                    <!-- Plastic Waste Category -->
-                                    <div class="col-md-12">
-                                        <div class="mega-dropdown-column">
-                                            <a href="/marketplace/?category=plastic" class="mega-dropdown-header">
-                                                <i class="fas fa-recycle me-2"></i>Plastic Waste
-                                            </a>
-                                            <a href="/marketplace/?category=paper" class="mega-dropdown-header">
-                                                <i class="fas fa-newspaper me-2"></i>Paper Waste
-                                            </a>
-                                            
-                                            <a href="/marketplace/?category=electronics" class="mega-dropdown-header">
-                                                <i class="fas fa-microchip me-2"></i>Electronic Waste
-                                            </a>
-                                            <a href="/marketplace/?category=metal" class="mega-dropdown-header">
-                                                <i class="fas fa-industry me-2"></i>Metal Scrap
-                                            </a>
-                                        </div>
+                <!-- Categories and Marketplace (always visible) -->
+                <li class="nav-item dropdown mega-dropdown">
+                    <a class="nav-link" href="#" id="categoriesDropdown" role="button" aria-expanded="false">
+                        <i class="fas fa-th-list me-1"></i>Categories
+                    </a>
+                    <div class="dropdown-menu mega-dropdown-menu">
+                        <div class="container">
+                            <div class="row">
+                                <!-- Plastic Waste Category -->
+                                <div class="col-md-12">
+                                    <div class="mega-dropdown-column">
+                                        <a href="/marketplace/?category=plastic" class="mega-dropdown-header">
+                                            <i class="fas fa-recycle me-2"></i>Plastic Waste
+                                        </a>
+                                        <a href="/marketplace/?category=paper" class="mega-dropdown-header">
+                                            <i class="fas fa-newspaper me-2"></i>Paper Waste
+                                        </a>
+                                        
+                                        <a href="/marketplace/?category=electronics" class="mega-dropdown-header">
+                                            <i class="fas fa-microchip me-2"></i>Electronic Waste
+                                        </a>
+                                        <a href="/marketplace/?category=metal" class="mega-dropdown-header">
+                                            <i class="fas fa-industry me-2"></i>Metal Scrap
+                                        </a>
                                     </div>
-
                                 </div>
-                                
-                                
-                            </div>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/marketplace/">
-                            <i class="fas fa-store me-1"></i>Marketplace
-                        </a>
-                    </li>
-                </div>
 
-                <!-- Buy and Sell options for logged-in users (hidden by default) -->
-                <div id="user-nav-items" style="display: none;">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/marketplace/">
-                            <i class="fas fa-shopping-cart me-1"></i>Buy
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/requirements/">
-                            <i class="fas fa-bullhorn me-1"></i>Sell
-                        </a>
-                    </li>
-                    <!-- Buyer-specific navigation (hidden by default) -->
-                    <li class="nav-item" id="buyer-nav-item" style="display: none;">
-                        <a class="nav-link" href="/requirement-form/">
-                            <i class="fas fa-plus-circle me-1"></i>Post Requirement
-                        </a>
-                    </li>
-                    <!-- Seller-specific navigation (hidden by default) -->
-                    <li class="nav-item" id="seller-nav-item" style="display: none;">
-                        <a class="nav-link" href="/listing-form/">
-                            <i class="fas fa-plus-square me-1"></i>Post Listing
-                        </a>
-                    </li>
-                </div>
+                            </div>
+                            
+                            
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/marketplace/">
+                        <i class="fas fa-store me-1"></i>Marketplace
+                    </a>
+                </li>
+
+                <!-- Role-specific navigation for logged-in users (hidden by default) -->
+                <!-- Buyer-specific navigation (hidden by default) -->
+                <li class="nav-item" id="buyer-nav-item" style="display: none;">
+                    <a class="nav-link" href="/requirement-form/">
+                        <i class="fas fa-plus-circle me-1"></i>Post Requirement
+                    </a>
+                </li>
+                <!-- Seller-specific navigation (hidden by default) -->
+                <li class="nav-item" id="seller-nav-item" style="display: none;">
+                    <a class="nav-link" href="/listing-form/">
+                        <i class="fas fa-plus-square me-1"></i>Post Listing
+                    </a>
+                </li>
             </ul>
             
             <!-- Conditional Authentication Section -->
@@ -133,8 +119,6 @@
         const userDisplayName = document.getElementById('user-display-name');
         const profileLink = document.getElementById('profile-link');
         const logoutLink = document.getElementById('logout-link');
-        const guestNavItems = document.getElementById('guest-nav-items');
-        const userNavItems = document.getElementById('user-nav-items');
         const buyerNavItem = document.getElementById('buyer-nav-item');
         const sellerNavItem = document.getElementById('seller-nav-item');
 
@@ -146,8 +130,6 @@
         // Debug: Check if elements exist
         console.log('Login buttons element:', loginButtons);
         console.log('User dropdown element:', userDropdown);
-        console.log('Guest nav items:', guestNavItems);
-        console.log('User nav items:', userNavItems);
         console.log('Buyer nav item:', buyerNavItem);
         console.log('Seller nav item:', sellerNavItem);
         
@@ -155,8 +137,6 @@
             // User is logged in, show user navigation and dropdown
             if (loginButtons) loginButtons.style.display = 'none';
             if (userDropdown) userDropdown.style.display = 'block';
-            if (guestNavItems) guestNavItems.style.display = 'none';
-            if (userNavItems) userNavItems.style.display = 'flex';
            let userprofilelink='';
             // Show role-specific navigation items
             if (userRole && userRole.includes('buyer')) {
@@ -221,11 +201,11 @@
                 });
             }
         } else {
-            // User is not logged in, show login buttons and guest navigation
+            // User is not logged in, show login buttons and hide role-specific navigation
             if (loginButtons) loginButtons.style.display = 'flex';
             if (userDropdown) userDropdown.style.display = 'none';
-            if (guestNavItems) guestNavItems.style.display = 'flex';
-            if (userNavItems) userNavItems.style.display = 'none';
+            if (buyerNavItem) buyerNavItem.style.display = 'none';
+            if (sellerNavItem) sellerNavItem.style.display = 'none';
         }
         }, 500); // 500ms delay
     });
