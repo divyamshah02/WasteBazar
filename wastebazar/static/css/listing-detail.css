@@ -1630,3 +1630,85 @@
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
+
+/* Credit Warning Modal Styles */
+.credit-warning-content {
+  padding: 1rem;
+}
+
+.credit-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  color: var(--warning-color, #ffc107);
+}
+
+.credit-info {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-left: 4px solid var(--warning-color, #ffc107);
+}
+
+.current-credits {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.credit-label {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.credit-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.credit-breakdown {
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.credit-benefits {
+  text-align: left;
+  margin: 1.5rem 0;
+}
+
+.credit-benefits .benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background: rgba(40, 167, 69, 0.1);
+  border-radius: 8px;
+}
+
+.credit-benefits .benefit-item i {
+  font-size: 1.1rem;
+  width: 20px;
+}
+
+.credit-benefits .benefit-item span {
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+#continueCreditBtn {
+  position: relative;
+  overflow: hidden;
+}
+
+#continueCreditBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#continueCreditBtn .spinner-border {
+  width: 1rem;
+  height: 1rem;
+}

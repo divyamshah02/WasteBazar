@@ -156,7 +156,7 @@ class OtpAuthViewSet(viewsets.ViewSet):
 class UserDetailViewSet(viewsets.ViewSet):
 
     @handle_exceptions
-    # @check_authentication()
+    # @check_authentication(required_role=['buyer_individual', 'buyer_corporate'])
     def update(self, request, pk):
         """
         API 3: Fill User Details after OTP verification
@@ -1238,3 +1238,257 @@ class UpdateUserDetailsViewSet(viewsets.ViewSet):
         Same as update but explicitly supports partial updates
         """
         return self.update(request, pk)
+
+
+class SellerContactViewSet(viewsets.ViewSet):
+    """
+    API to get seller contact information with credit deduction
+    """
+    
+    @handle_exceptions
+    # @check_authentication()
+    def list(self, request):
+        """
+        API: Get Seller Contact Information
+        - Requires listing_id in query parameters or request data
+        - Deducts 1 credit from user's wallet
+        - Returns seller phone and email if successful
+        """
+        from MarketPlace.models import SellerListing
+        
+        # Get request data - try query params first, then POST data
+        listing_id = request.query_params.get('listing_id') or request.data.get('listing_id')
+        user_id = request.query_params.get('user_id') or request.data.get('user_id')
+        
+        if not listing_id:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": "listing_id is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        if not user_id:
+            return Response({
+                "success": False,
+                "user_not_logged_in": True,
+                "user_unauthorized": False,
+                "data": None,
+                "error": "user_id is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Get user's wallet
+            wallet = Wallet.objects.get(user_id=user_id)
+            
+            # Reset free credits if due
+            wallet.reset_free_credits_if_due()
+            
+            # Check if user has at least 1 credit
+            if wallet.get_total_credits() < 1:
+                return Response({
+                    "success": False,
+                    "user_not_logged_in": False,
+                    "user_unauthorized": False,
+                    "data": {
+                        "free_credits": wallet.free_credits,
+                        "paid_credits": wallet.paid_credits,
+                        "total_credits": wallet.get_total_credits()
+                    },
+                    "error": "Not enough credits. Please purchase credits to access seller contact information."
+                }, status=status.HTTP_402_PAYMENT_REQUIRED)
+            
+            # Get the listing
+            try:
+                listing = SellerListing.objects.get(listing_id=listing_id)
+            except SellerListing.DoesNotExist:
+                return Response({
+                    "success": False,
+                    "user_not_logged_in": False,
+                    "user_unauthorized": False,
+                    "data": None,
+                    "error": "Listing not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Get seller details
+            try:
+                seller = User.objects.get(user_id=listing.seller_user_id)
+            except User.DoesNotExist:
+                return Response({
+                    "success": False,
+                    "user_not_logged_in": False,
+                    "user_unauthorized": False,
+                    "data": None,
+                    "error": "Seller not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Deduct 1 credit
+            credit_deducted = wallet.deduct_credits(1)
+            
+            if not credit_deducted:
+                return Response({
+                    "success": False,
+                    "user_not_logged_in": False,
+                    "user_unauthorized": False,
+                    "data": {
+                        "free_credits": wallet.free_credits,
+                        "paid_credits": wallet.paid_credits,
+                        "total_credits": wallet.get_total_credits()
+                    },
+                    "error": "Failed to deduct credits. Please try again."
+                }, status=status.HTTP_402_PAYMENT_REQUIRED)
+            
+            # Return seller contact information
+            return Response({
+                "success": True,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": {
+                    "seller_contact": {
+                        "seller_id": seller.user_id,
+                        "seller_name": seller.name,
+                        "phone": seller.contact_number,
+                        "email": seller.email,
+                        "listing_id": listing_id,
+                        "listing_name": listing.listing_name
+                    },
+                    "credits_remaining": {
+                        "free_credits": wallet.free_credits,
+                        "paid_credits": wallet.paid_credits,
+                        "total_credits": wallet.get_total_credits()
+                    },
+                    "credit_deducted": 1
+                },
+                "error": None
+            }, status=status.HTTP_200_OK)
+            
+        except Wallet.DoesNotExist:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": "User wallet not found. Please contact support."
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as e:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": f"An error occurred: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class WalletDetailsViewSet(viewsets.ViewSet):
+    """
+    API to retrieve wallet details for buyers
+    """
+    
+    @handle_exceptions
+    # @check_authentication(required_role=['buyer_individual', 'buyer_corporate'])
+    def retrieve(self, request, pk=None):
+        """
+        API: Get Wallet Details for a specific buyer
+        - Returns free credits, paid credits, total credits
+        - Includes reset date and last activity
+        """
+        user_id = pk 
+        
+        # Verify the requested user exists and is a buyer
+        try:
+            user = User.objects.get(user_id=user_id)
+            if user.role not in ['buyer_individual', 'buyer_corporate']:
+                return Response({
+                    "success": False,
+                    "user_not_logged_in": False,
+                    "user_unauthorized": True,
+                    "data": None,
+                    "error": "This API is only available for buyers"
+                }, status=status.HTTP_403_FORBIDDEN)
+        except User.DoesNotExist:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": "User not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if current user can access this wallet
+        # # Only perform this check if user is authenticated
+        # if hasattr(request.user, 'role') and request.user.is_authenticated:
+        #     if request.user.role != 'admin' and request.user.user_id != user_id:
+        #         return Response({
+        #             "success": False,
+        #             "user_not_logged_in": False,
+        #             "user_unauthorized": True,
+        #             "data": None,
+        #             "error": "You can only access your own wallet details"
+        #         }, status=status.HTTP_403_FORBIDDEN)
+        # else:
+        #     # For unauthenticated users, deny access
+        #     return Response({
+        #         "success": False,
+        #         "user_not_logged_in": True,
+        #         "user_unauthorized": False,
+        #         "data": None,
+        #         "error": "Authentication required to access wallet details"
+        #     }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        try:
+            # Get wallet details
+            wallet = Wallet.objects.get(user_id=user_id)
+            
+            # Reset free credits if due
+            wallet.reset_free_credits_if_due()
+            
+            # Prepare response data
+            response_data = {
+                'user_id': user_id,
+                'user_name': user.name,
+                'user_role': user.role,
+                'wallet_details': {
+                    'free_credits': wallet.free_credits,
+                    'paid_credits': wallet.paid_credits,
+                    'total_credits': wallet.get_total_credits(),
+                    'free_credit_reset_date': wallet.free_credit_reset_date.strftime('%Y-%m-%d'),
+                    'last_updated': wallet.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+                    'created_at': wallet.created_at.strftime('%Y-%m-%d %H:%M:%S')
+                },
+                'credit_summary': {
+                    'can_access_seller_contacts': wallet.get_total_credits() >= 1,
+                    'days_until_reset': (wallet.free_credit_reset_date.date() - timezone.now().date()).days,
+                    'is_reset_due': timezone.now().date() >= wallet.free_credit_reset_date.date()
+                }
+            }
+            
+            return Response({
+                "success": True,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": response_data,
+                "error": None
+            }, status=status.HTTP_200_OK)
+            
+        except Wallet.DoesNotExist:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": "Wallet not found for this user"
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as e:
+            return Response({
+                "success": False,
+                "user_not_logged_in": False,
+                "user_unauthorized": False,
+                "data": None,
+                "error": f"An error occurred: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+  

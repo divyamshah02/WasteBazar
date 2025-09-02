@@ -9,6 +9,19 @@ class ListingDetailApp {
     this.init();
   }
 
+  // Check if current user is a buyer
+  isBuyer() {
+    const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
+    const userRole = localStorage.getItem('user_role');
+
+    if (!isLoggedIn || !userRole) {
+      return true; // Show contact options for non-logged users
+    }
+
+    // Check if user role contains 'buyer' (handles buyer_individual, buyer_corporate)
+    return userRole.includes('buyer');
+  }
+
   init() {
     // Get listing ID from URL or page context
     this.extractListingId();
@@ -142,6 +155,26 @@ class ListingDetailApp {
 
     // Setup forms
     this.setupInquiryForm(listing);
+
+    // Handle role-based visibility
+    this.handleRoleBasedVisibility();
+  }
+
+  // Hide/show elements based on user role
+  handleRoleBasedVisibility() {
+    const enquiryCard = document.querySelector('.inquiry-form-card');
+
+    if (!this.isBuyer()) {
+      // Hide enquiry card for sellers and other non-buyer roles
+      if (enquiryCard) {
+        enquiryCard.style.display = 'none';
+      }
+    } else {
+      // Show enquiry card for buyers and non-logged users
+      if (enquiryCard) {
+        enquiryCard.style.display = 'block';
+      }
+    }
   }
 
   updateBreadcrumb(listing) {
@@ -410,13 +443,24 @@ class ListingDetailApp {
     // }
 
     if (sellerActions) {
-      sellerActions.innerHTML = `
-                <button class="btn-contact-seller" onclick="openContactModal()">
-                    <i class="fas fa-phone"></i>
-                    Contact Seller
-                </button>
-                
-            `;
+      // Only show contact seller button for buyers or non-logged users
+      if (this.isBuyer()) {
+        sellerActions.innerHTML = `
+                  <button class="btn-contact-seller" onclick="openContactModal()">
+                      <i class="fas fa-phone"></i>
+                      Contact Seller
+                  </button>
+                  
+              `;
+      } else {
+        // Hide contact seller button for sellers and other roles
+        sellerActions.innerHTML = `
+                  <p class="text-muted text-center">
+                      <i class="fas fa-info-circle me-2"></i>
+                      Contact options are available for buyers only
+                  </p>
+              `;
+      }
     }
   }
 
@@ -750,10 +794,8 @@ function openContactModal() {
     const loginRequiredModal = new bootstrap.Modal(document.getElementById('loginRequiredModal'));
     loginRequiredModal.show();
   } else {
-    // Load seller contact details and show contact modal if logged in
-    loadSellerContactDetails();
-    const contactModal = new bootstrap.Modal(document.getElementById('contactModal'));
-    contactModal.show();
+    // Show credit warning modal first if logged in
+    showCreditWarningModal();
   }
 }
 
@@ -1314,46 +1356,196 @@ function submitInquiryModal(event) {
   }, 1200)
 }
 
-function loadSellerContactDetails() {
-  // If we have listing data, populate the contact modal with seller info
-  if (window.listingDetailApp && window.listingDetailApp.listingData) {
-    const listing = window.listingDetailApp.listingData;
+function showCreditWarningModal() {
+  // Get user's wallet information first
+  fetchUserCredits().then(() => {
+    const creditWarningModal = new bootstrap.Modal(document.getElementById('creditWarningModal'));
+    creditWarningModal.show();
 
-    // Update contact modal with seller details
-    const sellerPhone = document.getElementById('seller-phone');
-    const sellerEmail = document.getElementById('seller-email');
-    const callAction = document.getElementById('call-action');
-    const emailAction = document.getElementById('email-action');
-    const whatsappAction = document.getElementById('whatsapp-action');
-
-    if (listing.seller_phone) {
-      sellerPhone.textContent = listing.seller_phone;
-      callAction.href = `tel:${listing.seller_phone.replace(/\s+/g, '')}`;
-      whatsappAction.href = `https://wa.me/${listing.seller_phone.replace(/\D/g, '')}`;
-    } else {
-      sellerPhone.textContent = 'Not available';
-      callAction.style.display = 'none';
-      whatsappAction.style.display = 'none';
-    }
-
-    if (listing.seller_email) {
-      sellerEmail.textContent = listing.seller_email;
-      emailAction.href = `mailto:${listing.seller_email}`;
-    } else {
-      sellerEmail.textContent = 'Not available';
-      emailAction.style.display = 'none';
-    }
-  } else {
-    // Fallback contact info
-    document.getElementById('seller-phone').textContent = '+91 98765 43210';
-    document.getElementById('seller-email').textContent = 'contact@mumbairecyclers.com';
-    document.getElementById('call-action').href = 'tel:+919876543210';
-    document.getElementById('email-action').href = 'mailto:contact@mumbairecyclers.com';
-    document.getElementById('whatsapp-action').href = 'https://wa.me/919876543210';
-  }
+    // Setup continue button event listener
+    setupCreditWarningListeners();
+  }).catch(error => {
+    console.error('Error fetching user credits:', error);
+    // Show modal anyway with default values
+    const creditWarningModal = new bootstrap.Modal(document.getElementById('creditWarningModal'));
+    creditWarningModal.show();
+    setupCreditWarningListeners();
+  });
 }
 
-function loadRelatedListings() {
+async function fetchUserCredits() {
+  try {
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+      throw new Error('User ID not found');
+    }
+
+    // Use the new dedicated wallet API (list endpoint for current user)
+    const [success, response] = await callApi('GET', `/user-api/wallet-details-api/${userId}/`);
+
+    if (success && response.success && response.data && response.data.wallet_details) {
+      const walletDetails = response.data.wallet_details;
+
+      // Update credit information in the modal
+      document.getElementById('available-credits').textContent = walletDetails.total_credits || 0;
+      document.getElementById('free-credits').textContent = walletDetails.free_credits || 0;
+      document.getElementById('paid-credits').textContent = walletDetails.paid_credits || 0;
+
+      // Update continue button based on available credits
+      const continueBtn = document.getElementById('continueCreditBtn');
+      const totalCredits = walletDetails.total_credits || 0;
+
+      if (totalCredits > 0 && response.data.credit_summary && response.data.credit_summary.can_access_seller_contacts) {
+        continueBtn.disabled = false;
+        continueBtn.innerHTML = '<i class="fas fa-arrow-right me-2"></i>Continue (1 Credit)';
+        continueBtn.classList.remove('btn-warning');
+        continueBtn.classList.add('btn-primary');
+      } else {
+        continueBtn.disabled = true;
+        continueBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Insufficient Credits';
+        continueBtn.classList.remove('btn-primary');
+        continueBtn.classList.add('btn-warning');
+      }
+
+      // Update additional info if available
+      if (response.data.credit_summary) {
+        const creditSummary = response.data.credit_summary;
+
+        // Update free credit reset date if element exists
+        const resetDateElement = document.getElementById('free-credit-reset-date');
+        if (resetDateElement && walletDetails.free_credit_reset_date) {
+          const resetDate = new Date(walletDetails.free_credit_reset_date);
+          resetDateElement.textContent = resetDate.toLocaleDateString();
+        }
+
+        // Update days until reset if element exists
+        const daysUntilResetElement = document.getElementById('days-until-reset');
+        if (daysUntilResetElement && creditSummary.days_until_reset) {
+          daysUntilResetElement.textContent = creditSummary.days_until_reset;
+        }
+      }
+    } else {
+      throw new Error(response.error || 'Failed to fetch wallet details');
+    }
+  } catch (error) {
+    console.error('Error fetching user credits:', error);
+    // Set default values
+    document.getElementById('available-credits').textContent = '0';
+    document.getElementById('free-credits').textContent = '0';
+    document.getElementById('paid-credits').textContent = '0';
+
+    const continueBtn = document.getElementById('continueCreditBtn');
+    continueBtn.disabled = true;
+    continueBtn.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error Loading Credits';
+    continueBtn.classList.remove('btn-primary');
+    continueBtn.classList.add('btn-warning');
+  }
+} function setupCreditWarningListeners() {
+  const continueBtn = document.getElementById('continueCreditBtn');
+
+  // Remove any existing event listeners
+  // const newContinueBtn = continueBtn.cloneNode(true);
+  // continueBtn.parentNode.replaceChild(newContinueBtn, continueBtn);
+
+  // Add new event listener
+  continueBtn.addEventListener('click', function () {
+    if (!this.disabled) {
+      // Close credit warning modal
+      const creditWarningModal = bootstrap.Modal.getInstance(document.getElementById('creditWarningModal'));
+      creditWarningModal.hide();
+
+      // Load seller contact details with credit deduction
+      loadSellerContactDetails();
+    }
+  });
+}
+
+async function loadSellerContactDetails() {
+  try {
+    // Show loading state
+    const contactModal = new bootstrap.Modal(document.getElementById('contactModal'));
+    contactModal.show();
+
+    // Set loading state in contact modal
+    document.getElementById('seller-phone').textContent = 'Loading...';
+    document.getElementById('seller-email').textContent = 'Loading...';
+
+    // Get listing ID
+    const listingId = window.listingApp ? window.listingApp.listingId : null;
+    if (!listingId) {
+      throw new Error('Listing ID not found');
+    }
+
+    // Get current user ID
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+      throw new Error('User ID not found');
+    }
+
+    // Call the seller contact API with listing_id and user_id as query parameters
+    const [success, response] = await callApi('GET', `/user-api/seller-contact-api/?listing_id=${listingId}&user_id=${userId}`);
+
+    if (success && response.success && response.data && response.data.seller_contact) {
+      const sellerContact = response.data.seller_contact;
+      const creditsRemaining = response.data.credits_remaining;
+
+      // Update contact modal with seller information
+      document.getElementById('seller-phone').textContent = sellerContact.phone || 'Not available';
+      document.getElementById('seller-email').textContent = sellerContact.email || 'Not available';
+
+      // Update seller name if available
+      const sellerNameElement = document.getElementById('seller-name');
+      if (sellerNameElement) {
+        sellerNameElement.textContent = sellerContact.seller_name || 'Anonymous Seller';
+      }
+
+      // Update seller ID if available
+      const sellerIdElement = document.getElementById('seller-id');
+      if (sellerIdElement) {
+        sellerIdElement.textContent = sellerContact.seller_id || 'N/A';
+      }
+
+      // Update action buttons
+      const callAction = document.getElementById('call-action');
+      const emailAction = document.getElementById('email-action');
+      const whatsappAction = document.getElementById('whatsapp-action');
+
+      if (sellerContact.phone) {
+        callAction.href = `tel:${sellerContact.phone}`;
+        if (whatsappAction) {
+          whatsappAction.href = `https://wa.me/${sellerContact.phone.replace(/[^0-9]/g, '')}`;
+        }
+      }
+
+      if (sellerContact.email) {
+        emailAction.href = `mailto:${sellerContact.email}`;
+      }
+
+      // Show success message
+      console.log('Seller contact details loaded successfully');
+      console.log('Credits remaining:', creditsRemaining);
+
+    } else {
+      throw new Error(response.error || 'Failed to load seller contact details');
+    }
+
+  } catch (error) {
+    console.error('Error loading seller contact details:', error);
+
+    // Update contact modal with error message
+    document.getElementById('seller-phone').textContent = 'Error loading contact';
+    document.getElementById('seller-email').textContent = 'Error loading contact';
+
+    // Show error alert
+    alert(`Error: ${error.message || 'Failed to load seller contact details'}`);
+
+    // Close contact modal if there's an error
+    const contactModal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
+    if (contactModal) {
+      contactModal.hide();
+    }
+  }
+} function loadRelatedListings() {
   const container = document.getElementById("relatedListings")
 
   // Show loading state

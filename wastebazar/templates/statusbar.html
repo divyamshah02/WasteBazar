@@ -348,7 +348,7 @@
                         this.showCompleteAccountStatus(profileData);
                     } else if (profileData.profile_completed && !profileData.is_approved) {
                         this.showVerificationStatus();
-                    } else if (profileData.profile_completed && profileData.is_approved) {
+                    } else if (profileData.profile_completed) {
                         this.hideStatusBar();
                     }
                 } else {

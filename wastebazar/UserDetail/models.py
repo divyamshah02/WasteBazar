@@ -169,22 +169,27 @@ class Wallet(models.Model):
             return True
         return False
  
-    # def deduct_credits(self, amount):
-    #     """Deduct credits (first from free, then from paid)"""
-    #     if self.get_total_credits() < amount:
-    #         return False
+    def get_total_credits(self):
+        """Get total available credits"""
+        return self.free_credits + self.paid_credits
+    
+    def deduct_credits(self, amount=1):
+        """Deduct credits (first from free, then from paid)"""
+        # Check if we have enough total credits
+        if self.get_total_credits() < amount:
+            return False
         
-    #     # First deduct from free credits
-    #     if self.free_credits >= amount:
-    #         self.free_credits -= amount
-    #     else:
-    #         # Deduct remaining from paid credits
-    #         remaining = amount - self.free_credits
-    #         self.free_credits = 0
-    #         self.paid_credits -= remaining
+        # If we have enough free credits, deduct from free only
+        if self.free_credits >= amount:
+            self.free_credits -= amount
+        else:
+            # If free credits are not enough, use all free credits and deduct remaining from paid
+            remaining_amount = amount - self.free_credits
+            self.free_credits = 0
+            self.paid_credits -= remaining_amount
         
-    #     self.save()
-    #     return True
+        self.save()
+        return True
  
     def __str__(self):
         return f"Wallet for {self.user_id} - Free: {self.free_credits}, Paid: {self.paid_credits}"

@@ -956,7 +956,7 @@ class AdminListingrejectionViewSet(viewsets.ViewSet):
     
 class AllListingsViewset(viewsets.ViewSet):
     @handle_exceptions
-    # @check_authentication(required_role='buyer_corporate')  # Adjust if needed
+    @check_authentication(required_role='buyer_corporate')  # Adjust if needed
     def list(self, request):
         """Get approved listings with optional filtering and sorting"""
         # Start with approved listings only
