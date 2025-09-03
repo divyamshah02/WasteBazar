@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, CorporateUserDetail, OTPVerification
+from .models import User, CorporateUserDetail, OTPVerification, Wallet
 
 
 # Custom admin for User model
@@ -41,3 +41,9 @@ class OTPVerificationAdmin(admin.ModelAdmin):
     list_filter = ('is_verified', )
     search_fields = ('mobile', 'otp')
 
+@admin.register(Wallet)
+class Wallet(admin.ModelAdmin):
+    list_display = ('user_id', 'role', 'free_credits','paid_credits','last_free_credit_reset','free_credit_reset_date' ,'created_at')
+    list_filter = ('role',)
+    search_fields = ('user_id', 'role')
+    

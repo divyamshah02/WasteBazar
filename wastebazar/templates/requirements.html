@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Requirements - WasteBazar | Find Buyer Requirements</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/requirements.css">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body><nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">WasteBazar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/marketplace">
+                            <i class="fas fa-shopping-cart me-1"></i>Buy
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/requirements">
+                            <i class="fas fa-tags me-1"></i>Sell
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-plus-circle me-1"></i>Post Requirement
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <a href="/directlogin" class="btn btn-outline-primary">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                    </a>
+                    <a href="/register" class="btn btn-registration">
+                        <i class="fas fa-user-plus me-1"></i>Register
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar -->
+    {% include 'navbar.html' %}
+    <!-- Include Status Bar -->
+    {% include 'statusbar.html' %}
+    
+    <!-- Top Advertisement Banner (Desktop Only) -->
+    {% comment %} <div class="top-ad-banner d-none d-none" id="topAd">
+        <div class="container">
+            <div class="ad-container">
+                <img src="https://www.bruker.com/en/applications/industrial/metals/_jcr_content/root/overviewstage/desktopImage.coreimg.82.1920.jpeg/1733859095146/metal-tubes.jpeg" alt="Advertisement" class="ad-image">
+                <button class="ad-close" onclick="closeAd('topAd')">&times;</button>
+            </div>
+        </div>
+    </div> {% endcomment %}
+
+    
+
+    <!-- Page Header -->
+    <section class="page-header">
+        
+        <div class="container">
+            <div class="header-content">
+                <h1 class="page-title">Browse Requirements</h1>
+                <p class="page-subtitle">Discover active buyer requirements from verified businesses across India</p>
+                <div class="breadcrumb-nav">
+                    <a href="index.html">Home</a> <i class="fas fa-chevron-right"></i> <span>Requirements</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <div class="main-content d-block">
+        <!-- Left Sidebar Ads (Desktop Only) -->
+        {% comment %} <div class="left-sidebar-ads d-none d-lg-block">
+            <div class="sidebar-ad" id="leftAd1">
+                <div class="ad-label">Sponsored</div>
+                <div class="ad-content">
+                    <img src="https://www.bruker.com/en/applications/industrial/metals/_jcr_content/root/overviewstage/desktopImage.coreimg.82.1920.jpeg/1733859095146/metal-tubes.jpeg" height="250" width="160" alt="Advertisement">
+                    <div class="ad-text">
+                        <h6>Requirement Matching</h6>
+                        <p>AI-powered buyer-seller matching</p>
+                    </div>
+                </div>
+                <button class="ad-close" onclick="closeAd('leftAd1')">&times;</button>
+            </div>
+            
+            <div class="sidebar-ad" id="leftAd2">
+                <div class="ad-label">Sponsored</div>
+                <div class="ad-content">
+                    <img src="https://www.bruker.com/en/applications/industrial/metals/_jcr_content/root/overviewstage/desktopImage.coreimg.82.1920.jpeg/1733859095146/metal-tubes.jpeg" height="250" width="160" alt="Advertisement">
+                    <div class="ad-text">
+                        <h6>Requirement Alerts</h6>
+                        <p>Get notified of new requirements</p>
+                    </div>
+                </div>
+                <button class="ad-close" onclick="closeAd('leftAd2')">&times;</button>
+            </div>
+        </div> {% endcomment %}
+
+        <!-- Center Content -->
+        <div class="center-content">
+            <div class="container">
+                
+                <!-- Search and Filters -->
+                    <div class="search-filters-section">
+                        <div class="results-header">
+                        <div class="results-info">
+                            <h4 id="resultsCount">Loading requirements...</h4>
+                            <p id="resultsDescription">Fetching active buyer requirements from verified businesses</p>
+                        </div>
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid" id="gridView">
+                                <i class="fas fa-th-large"></i>
+                            </button>
+                            <button class="view-btn" data-view="list" id="listView">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <button class="view-btn" data-view="filtersview" id="filtersView">
+                                <i class="fas fa-tools"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-bar-container">
+                        <div class="search-input-group">
+                            <input type="text" class=" search-input" placeholder="Search requirements..." id="searchInput">
+                            <button class="search-btn" id="searchBtn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="filters-container">
+                        <div class="filters-header">
+                            <h3>Filters</h3>
+                            <button class="btn-clear-filters" id="clearFilters">Clear All</button>
+                        </div>
+                        
+                        <div class="filters-grid">
+                            <div class="filter-group">
+                                <label>Location</label>
+                                <select class="form-select" id="locationFilter">
+                                    <option value="">All Locations</option>
+                                    <option value="mumbai">Mumbai</option>
+                                    <option value="delhi">Delhi</option>
+                                    <option value="bangalore">Bangalore</option>
+                                    <option value="chennai">Chennai</option>
+                                    <option value="pune">Pune</option>
+                                    <option value="hyderabad">Hyderabad</option>
+                                    <option value="kolkata">Kolkata</option>
+                                    <option value="ahmedabad">Ahmedabad</option>
+                                    <option value="jaipur">Jaipur</option>
+                                    <option value="lucknow">Lucknow</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label>Category</label>
+                                <select class="form-select" id="categoryFilter">
+                                    <option value="">All Categories</option>
+                                    <!-- Categories will be loaded dynamically from API -->
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label>Subcategory</label>
+                                <select class="form-select" id="subcategoryFilter">
+                                    <option value="">All Subcategories</option>
+                                    <!-- Subcategories will be loaded dynamically based on selected category -->
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label>Quantity Range</label>
+                                <div class="quantity-inputs">
+                                    <input type="number" class="form-control" placeholder="Min" id="minQuantity">
+                                    <span>to</span>
+                                    <input type="number" class="form-control" placeholder="Max" id="maxQuantity">
+                                </div>
+                            </div>
+                            
+                            
+{% comment %}                             
+                            <div class="filter-group">
+                                <label>Price Range (₹/Ton)</label>
+                                <select class="form-select" id="priceFilter">
+                                    <option value="">Any Price</option>
+                                    <option value="0-10000">₹0 - ₹10,000</option>
+                                    <option value="10000-50000">₹10,000 - ₹50,000</option>
+                                    <option value="50000-100000">₹50,000 - ₹1,00,000</option>
+                                    <option value="100000+">₹1,00,000+</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>Quantity (Tons)</label>
+                                <div class="quantity-inputs">
+                                    <input type="number" class="form-control" placeholder="Min" id="minQuantity">
+                                    <span>to</span>
+                                    <input type="number" class="form-control" placeholder="Max" id="maxQuantity">
+                                </div>
+                            </div> {% endcomment %}
+                            
+                            <div class="filter-group">
+                                <label>Sort By</label>
+                                <select class="form-select" id="sortFilter">
+                                    <option value="created_at">Newest First</option>
+                                    <option value="-created_at">Oldest First</option>
+                                    <option value="quantity">Quantity: Low to High</option>
+                                    <option value="-quantity">Quantity: High to Low</option>
+                                    <option value="city_location">Location A-Z</option>
+                                    <option value="-city_location">Location Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Header -->
+                
+
+                <!-- Requirements Grid -->
+                <div class="listings-container" id="listingsContainer">
+                    <!-- Requirements will be dynamically loaded here -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <nav aria-label="Requirements pagination">
+                        <ul class="pagination" id="pagination">
+                            <!-- Pagination will be dynamically generated -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar Ads (Desktop Only) -->
+        {% comment %} <div class="right-sidebar-ads d-none d-lg-block">
+            <div class="sidebar-ad" id="rightAd1">
+                <div class="ad-label">Sponsored</div>
+                <div class="ad-content">
+                    <img src="https://www.bruker.com/en/applications/industrial/metals/_jcr_content/root/overviewstage/desktopImage.coreimg.82.1920.jpeg/1733859095146/metal-tubes.jpeg" height="250" width="160" alt="Advertisement">
+                    <div class="ad-text">
+                        <h6>Supplier Network</h6>
+                        <p>Connect with verified suppliers</p>
+                    </div>
+                </div>
+                <button class="ad-close" onclick="closeAd('rightAd1')">&times;</button>
+            </div>
+            
+            <div class="sidebar-ad" id="rightAd2">
+                <div class="ad-label">Sponsored</div>
+                <div class="ad-content">
+                    <img src="https://www.bruker.com/en/applications/industrial/metals/_jcr_content/root/overviewstage/desktopImage.coreimg.82.1920.jpeg/1733859095146/metal-tubes.jpeg" height="250" width="160" alt="Advertisement">
+                    <div class="ad-text">
+                        <h6>Business Solutions</h6>
+                        <p>Enterprise requirement management</p>
+                    </div>
+                </div>
+                <button class="ad-close" onclick="closeAd('rightAd2')">&times;</button>
+            </div>
+        </div> {% endcomment %}
+    </div>
+
+    <!-- Mobile Ad Modal -->
+    <div class="modal fade" id="mobileAdModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="ad-label">Advertisement</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="mobileAdContent">
+                    <!-- Ad content will be dynamically loaded -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>WasteBazar</h3>
+                    <p>India's leading information platform for scrap trading. We connect verified buyers and sellers, enabling transparent and efficient scrap trading across the country.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html#about">About Us</a></li>
+                        <li><a href="index.html#how-it-works">How It Works</a></li>
+                        <li><a href="listings.html">Browse Listings</a></li>
+                        <li><a href="#">Post Listing</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Categories</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Plastic Waste</a></li>
+                        <li><a href="#">Metal Scrap</a></li>
+                        <li><a href="#">Paper Waste</a></li>
+                        <li><a href="#">Electronic Waste</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>123 Business District, Mumbai, India</p>
+                    <p><i class="fas fa-phone me-2"></i>+91 98765 43210</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@wastebazar.com</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 WasteBazar. All rights reserved. | Connecting India's Scrap Trading Community</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="/static/js/api_caller.js"></script>
+    <script src="/static/js/requirements.js"></script>
+
+    <script>
+        // Initialize requirements page with API endpoints
+        window.onload = async function () {
+            await RequirementsApp("{{ csrf_token }}", "/marketplace-api/all-buyer-requirements/");
+        }
+    </script>
+</body>
+</html>

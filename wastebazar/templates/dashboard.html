@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WasteBazar Admin Panel</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                
+                <span class="navbar-brand">Wastebazar</span>
+            </div>
+
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-section="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-section="listings">
+                <i class="fas fa-list"></i>
+                <span>All Listings</span>
+            </a>
+            <a href="#" class="nav-item" data-section="requirements">
+                <i class="fas fa-clipboard-list"></i>
+                <span>All Requirements</span>
+            </a>
+            <a href="#" class="nav-item" data-section="users">
+                <i class="fas fa-users"></i>
+                <span>All Users</span>
+            </a>
+            <!-- Added unapproved sections to navigation -->
+            <a href="#" class="nav-item" data-section="unapproved-listings">
+                <i class="fas fa-clock"></i>
+                <span>Unapproved Listings</span>
+            </a>
+            {% comment %} <a href="#" class="nav-item" data-section="unapproved-requirements">
+                <i class="fas fa-hourglass-half"></i>
+                <span>Unapproved Requirements</span>
+            </a> {% endcomment %}
+            <a href="#" class="nav-item" data-section="unapproved-users">
+                <i class="fas fa-user-clock"></i>
+                <span>Unapproved Users</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">Admin Panel</h1>
+            </div>
+            <div class="header-right">
+                
+                <div class="user-profile">
+                    
+                    <span>Admin User</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <div class="content-section active" id="dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Total Listings</h3>
+                        <p class="stat-number">1,247</p>
+                        
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Requirements</h3>
+                        <p class="stat-number">89</p>
+                       
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Active Users</h3>
+                        <p class="stat-number">2,156</p>
+                        
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Row 1 -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-icon unapproved">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Recent Unapproved Listings</h3>
+                            <p class="card-number">5</p>
+                            <span class="card-subtitle">Pending approval</span>
+                        </div>
+                    </div>
+                    <div class="card-table">
+                        <table class="mini-table">
+                            <thead>
+                                <tr>
+                                    <th>Listing ID</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#5748293610</td>
+                                    <td>PET Bottle Waste</td>
+                                    <td>Plastic</td>
+                                    <td>Aug 22, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>#3926478501</td>
+                                    <td>Aluminum Scrap</td>
+                                    <td>Metal</td>
+                                    <td>Aug 21, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>#1849673052</td>
+                                    <td>Cardboard Boxes</td>
+                                    <td>Paper</td>
+                                    <td>Aug 20, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>#8472639154</td>
+                                    <td>E-Waste Components</td>
+                                    <td>Electronics</td>
+                                    <td>Aug 19, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>#2651938407</td>
+                                    <td>Copper Wire Scrap</td>
+                                    <td>Metal</td>
+                                    <td>Aug 18, 2025</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="card-link" data-section="unapproved-listings">
+                            <span>View All</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-icon approved">
+                            <i class="fas fa-list-check"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Recent Listings</h3>
+                            <p class="card-number">5</p>
+                            <span class="card-subtitle">Last approved</span>
+                        </div>
+                    </div>
+                    <div class="card-table">
+                        <table class="mini-table">
+                            <thead>
+                                <tr>
+                                    <th>ListingID</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Created Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#7394825610</td>
+                                    <td>HDPE Containers</td>
+                                    <td>Plastic</td>
+                                    <td>Aug 22, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>#5617384920</td>
+                                    <td>Iron Steel Scrap</td>
+                                    <td>Metal</td>
+                                    <td>Aug 21, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>#9281637405</td>
+                                    <td>Office Paper Waste</td>
+                                    <td>Paper</td>
+                                    <td>Aug 20, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>#4059372618</td>
+                                    <td>Mobile Parts</td>
+                                    <td>Electronics</td>
+                                    <td>Aug 19, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>#6730194852</td>
+                                    <td>PVC Pipe Waste</td>
+                                    <td>Plastic</td>
+                                    <td>Aug 18, 2025</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="card-link" data-section="listings">
+                            <span>View All</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Row 2 -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-icon warning">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Recent Unapproved Users</h3>
+                            <p class="card-number">4</p>
+                            <span class="card-subtitle">Awaiting verification</span>
+                        </div>
+                    </div>
+                    <div class="card-table">
+                        <table class="mini-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Name</th>
+                                    <th>Type of User</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>SI8429374605</td>
+                                    <td>Rajesh Kumar</td>
+                                    <td>Individual Seller</td>
+                                    <td>Aug 22, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>BC7394825610</td>
+                                    <td>Waste Solutions Ltd</td>
+                                    <td>Corporate Buyer</td>
+                                    <td>Aug 22, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>SI5617384920</td>
+                                    <td>Priya Sharma</td>
+                                    <td>Individual Seller</td>
+                                    <td>Aug 21, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>BC9281637405</td>
+                                    <td>EcoRecycle Corp</td>
+                                    <td>Corporate Buyer</td>
+                                    <td>Aug 20, 2025</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="card-link" data-section="unapproved-users">
+                            <span>View All</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div class="card-icon primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Recent Users</h3>
+                            <p class="card-number">5</p>
+                            <span class="card-subtitle">Recently approved</span>
+                        </div>
+                    </div>
+                    <div class="card-table">
+                        <table class="mini-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Name</th>
+                                    <th>Type of User</th>
+                                    <th>Created At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>BC4059372618</td>
+                                    <td>Mumbai Recyclers</td>
+                                    <td>Corporate Buyer</td>
+                                    <td>Aug 22, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>SI6730194852</td>
+                                    <td>Amit Patel</td>
+                                    <td>Individual Seller</td>
+                                    <td>Aug 21, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>BC8295471630</td>
+                                    <td>GreenTech Solutions</td>
+                                    <td>Corporate Buyer</td>
+                                    <td>Aug 20, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>SI3748926105</td>
+                                    <td>Neha Verma</td>
+                                    <td>Individual Seller</td>
+                                    <td>Aug 19, 2025</td>
+                                </tr>
+                                <tr>
+                                    <td>SC5916283740</td>
+                                    <td>Delhi Scrap Hub</td>
+                                    <td>Corporate Seller</td>
+                                    <td>Aug 18, 2025</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="card-link" data-section="users">
+                            <span>View All</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Listings Section -->
+        <div class="content-section" id="listings">
+            <div class="section-header">
+                <h2>All Listings</h2>
+               
+            </div>
+            <!-- Replaced filter tabs with dropdown -->
+            <div class="filter-container">
+                <label for="listings-filter" class="filter-label">Filter by Status:</label>
+                <select id="listings-filter" class="filter-dropdown" data-target="listings-tbody">
+                    <option value="all">All Listings</option>
+                    <option value="approved">Approved</option>
+                    <option value="unapproved">Unapproved</option>
+                    <option value="sold">Sold</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Listing ID</th>
+                            <th>Listing Title</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listings-tbody">
+                        <tr data-status="approved">
+                            <td>#7977468638</td>
+                            <td>Scrap Metal Waste - Aluminum Cans</td>
+                            <td>Metal</td>
+                            <td>Aluminum</td>
+                            <td><span class="status active">Approved</span></td>
+                            <td>2024-01-15</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-status="unapproved">
+                            <td>#4892736519</td>
+                            <td>Scrap Plastic Waste - PET Bottles</td>
+                            <td>Plastic</td>
+                            <td>PET</td>
+                            <td><span class="status pending">Unapproved</span></td>
+                            <td>2024-01-14</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-status="approved">
+                            <td>#6351428697</td>
+                            <td>Scrap Laptops - Old Dell Devices</td>
+                            <td>E-Waste</td>
+                            <td>Laptop</td>
+                            <td><span class="status active">Approved</span></td>
+                            <td>2024-01-13</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-status="sold">
+                            <td>#8245971603</td>
+                            <td>Paper Waste - Office Cardboards</td>
+                            <td>Paper</td>
+                            <td>Cardboards</td>
+                            <td><span class="status sold">Sold</span></td>
+                            <td>2024-01-12</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-status="inactive">
+                            <td>#9163570248</td>
+                            <td>E-Waste - Used Mobile Phones</td>
+                            <td>E-Waste</td>
+                            <td>Mobile</td>
+                            <td><span class="status inactive">Inactive</span></td>
+                            <td>2024-01-11</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Requirements Section -->
+        <div class="content-section" id="requirements">
+            <div class="section-header">
+                <h2>All Requirements</h2>
+                
+            </div>
+            <!-- Replaced filter tabs with dropdown -->
+            <div class="filter-container">
+                <label for="requirements-filter" class="filter-label">Filter by Status:</label>
+                <select id="requirements-filter" class="filter-dropdown" data-target="requirements-tbody">
+                    <option value="all">All Requirements</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Requirement ID</th>
+                            <th>Requirement Title</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requirements-tbody">
+                        <tr data-status="active">
+                            <td>#2847593601</td>
+                            <td>Need Bulk PET Bottles - Clean</td>
+                            <td>Plastic</td>
+                            <td>PET</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>2024-01-15</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-status="inactive">
+                            <td>#1738492650</td>
+                            <td>Looking for Copper Wire Scrap</td>
+                            <td>Metal</td>
+                            <td>Copper</td>
+                            <td><span class="status inactive">Inactive</span></td>
+                            <td>2024-01-14</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-status="active">
+                            <td>#5629384701</td>
+                            <td>Urgent: Old Laptop Buyback</td>
+                            <td>E-Waste</td>
+                            <td>Laptop</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>2024-01-13</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-status="active">
+                            <td>#9384750162</td>
+                            <td>Office Paper Waste Collection</td>
+                            <td>Paper</td>
+                            <td>Office Paper</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>2024-01-12</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-status="inactive">
+                            <td>#4275839106</td>
+                            <td>Mobile Phone Parts Required</td>
+                            <td>E-Waste</td>
+                            <td>Mobile</td>
+                            <td><span class="status inactive">Inactive</span></td>
+                            <td>2024-01-11</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div class="content-section" id="users">
+            <div class="section-header">
+                <h2>All Users</h2>
+               
+            </div>
+            <!-- Replaced filter tabs with dropdown -->
+            <div class="filter-container">
+                <label for="users-filter" class="filter-label">Filter by Role:</label>
+                <select id="users-filter" class="filter-dropdown" data-target="users-tbody">
+                    <option value="all">All Users</option>
+                    <option value="seller-individual">Seller Individual</option>
+                    <option value="seller-corporate">Seller Corporate</option>
+                    <option value="buyer-individual">Buyer Individual</option>
+                    <option value="buyer-corporate">Buyer Corporate</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <tr data-role="seller-individual">
+                            <td>SI7294863517</td>
+                            <td>John Doe</td>
+                            <td>john@example.com</td>
+                            <td>Seller Individual</td>
+                            <td><span class="status active">Approved</span></td>
+                            <td>2024-01-10</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-ban"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-role="seller-corporate">
+                            <td>SC5294468983</td>
+                            <td>Jane Smith</td>
+                            <td>jane@example.com</td>
+                            <td>Seller Corporate</td>
+                            <td><span class="status active">Approved</span></td>
+                            <td>2024-01-08</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-ban"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-role="buyer-individual">
+                            <td>BI8472936105</td>
+                            <td>Mike Johnson</td>
+                            <td>mike@example.com</td>
+                            <td>Buyer Individual</td>
+                            <td><span class="status inactive">Unapproved</span></td>
+                            <td>2024-01-05</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-ban"></i></button>
+                            </td>
+                        </tr>
+                        <tr data-role="buyer-corporate">
+                            <td>BC3859274610</td>
+                            <td>Sarah Wilson</td>
+                            <td>sarah@example.com</td>
+                            <td>Buyer Corporate</td>
+                            <td><span class="status active">Approved</span></td>
+                            <td>2024-01-03</td>
+                            <td>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                                <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon"><i class="fas fa-ban"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Added Unapproved Listings Section -->
+        <div class="content-section" id="unapproved-listings">
+            <div class="section-header">
+                <h2>Unapproved Listings</h2>
+                <div class="header-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-check-double"></i>
+                        Approve All
+                    </button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Submitted By</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#5748293610</td>
+                            <td>Scrap Metal Waste - Iron Steel</td>
+                            <td>Metal</td>
+                            <td>Iron Steel</td>
+                            <td>Sarah Wilson</td>
+                            <td>2024-01-16</td>
+                            <td>
+                                <button class="btn-icon approve"><i class="fas fa-check"></i></button>
+                                <button class="btn-icon reject"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#3926478501</td>
+                            <td>E-Waste - Lithium Batteries</td>
+                            <td>E-Waste</td>
+                            <td>Batteries</td>
+                            <td>Tech Solutions Inc</td>
+                            <td>2024-01-16</td>
+                            <td>
+                                <button class="btn-icon approve"><i class="fas fa-check"></i></button>
+                                <button class="btn-icon reject"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#1849673052</td>
+                            <td>Paper Waste - Newspaper Bundles</td>
+                            <td>Paper</td>
+                            <td>Newspaper</td>
+                            <td>David Miller</td>
+                            <td>2024-01-15</td>
+                            <td>
+                                <button class="btn-icon approve"><i class="fas fa-check"></i></button>
+                                <button class="btn-icon reject"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Added Unapproved Requirements Section -->
+        <div class="content-section" id="unapproved-requirements">
+            <div class="section-header">
+                <h2>Unapproved Requirements</h2>
+                <div class="header-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-check-double"></i>
+                        Approve All
+                    </button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Submitted By</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#4829376105</td>
+                            <td>Need Bulk HDPE Containers</td>
+                            <td>Plastic</td>
+                            <td>HDPE</td>
+                            <td>EcoRecycle Solutions</td>
+                            <td>2024-01-16</td>
+                            <td>
+                                <button class="btn-icon approve"><i class="fas fa-check"></i></button>
+                                <button class="btn-icon reject"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#7394825610</td>
+                            <td>Looking for Old Computer Parts</td>
+                            <td>E-Waste</td>
+                            <td>Computer</td>
+                            <td>TechRecycle Hub</td>
+                            <td>2024-01-15</td>
+                            <td>
+                                <button class="btn-icon approve"><i class="fas fa-check"></i></button>
+                                <button class="btn-icon reject"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#5617384920</td>
+                            <td>Magazine and Book Collection</td>
+                            <td>Paper</td>
+                            <td>Books</td>
+                            <td>Paper Mills Corp</td>
+                            <td>2024-01-14</td>
+                            <td>
+                                <button class="btn-icon approve"><i class="fas fa-check"></i></button>
+                                <button class="btn-icon reject"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Added Unapproved Users Section -->
+        <div class="content-section" id="unapproved-users">
+            <div class="section-header">
+                <h2>Unapproved Users</h2>
+                <div class="header-actions">
+                    <button class="btn-secondary">
+                        <i class="fas fa-check-double"></i>
+                        Approve All
+                    </button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Registration Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SI4829374605</td>
+                            <td>Alex Thompson</td>
+                            <td>alex@wastemanagement.com</td>
+                            <td>Seller Individual</td>
+                            <td>2024-01-16</td>
+                            <td>
+                                <button class="btn-icon approve"><i class="fas fa-check"></i></button>
+                                <button class="btn-icon reject"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BC7394825610</td>
+                            <td>Green Recycling Ltd</td>
+                            <td>info@greenrecycling.com</td>
+                            <td>Buyer Corporate</td>
+                            <td>2024-01-15</td>
+                            <td>
+                                <button class="btn-icon approve"><i class="fas fa-check"></i></button>
+                                <button class="btn-icon reject"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BI5617384920</td>
+                            <td>Priya Sharma</td>
+                            <td>priya@ecowaste.com</td>
+                            <td>Buyer Individual</td>
+                            <td>2024-01-14</td>
+                            <td>
+                                <button class="btn-icon approve"><i class="fas fa-check"></i></button>
+                                <button class="btn-icon reject"><i class="fas fa-times"></i></button>
+                                <button class="btn-icon"><i class="fas fa-eye"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 .breadcrumb-section {
   background: var(--bg-light);
   padding: 1rem 0;
-  margin-top: 95px;
+  /* margin-top: 95px; */
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -15,7 +15,7 @@
   font-size: 0.9rem;
 }
 
-.breadcrumb-item + .breadcrumb-item::before {
+.breadcrumb-item+.breadcrumb-item::before {
   content: ">";
   color: var(--text-muted);
   font-weight: 600;
@@ -1054,6 +1054,7 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -1061,6 +1062,7 @@
 
 /* Print Styles */
 @media print {
+
   .navbar,
   .top-ad-banner,
   .left-sidebar-ads,

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, CorporateUserDetail, OTPVerification
+from .models import User, CorporateUserDetail, OTPVerification, Wallet
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -11,6 +11,13 @@ class UserSerializer(serializers.ModelSerializer):
             'name',
             'contact_number',
             'email',
+            'pan_number',
+            'aadhar_number',
+            'addressline1',
+            'addressline2',
+            'city',
+            'state',
+            'address_pincode',
             'username',
             'is_deleted',
         ]
@@ -27,8 +34,14 @@ class CorporateUserDetailSerializer(serializers.ModelSerializer):
             'email',
             'company_name',
             'pan_number',
+            'aadhar_number',
+            'cin_number',
             'gst_number',
-            'address',
+            'city',
+            'state',
+            'addressline1',
+            'addressline2',
+            'address_pincode',
             'certificate_url',
             'is_approved',
             'rejection_reason',
@@ -51,3 +64,17 @@ class OTPVerificationSerializer(serializers.ModelSerializer):
             'expires_at',
         ]
         read_only_fields = ['created_at', 'expires_at', 'attempt_count', 'is_verified']
+
+class WalletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        fields = [
+            'user_id',
+            'role',
+            'free_credits',
+            'paid_credits',
+            'last_free_credit_reset',
+            'free_credit_reset_date',
+            'created_at'
+        ]
+        read_only_fields = ['user_id', 'created_at']

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Requirement - WasteBazar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/css/requirement_form.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <style>
+        .form-container::before {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">WasteBazar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="/listings">Marketplace</a>
+                    </li>
+                   
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/buyer-profile">Dashboard</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="form-container" style="margin-top: 100px;">
+        <div class="container" style="max-width: 900px;">
+            <div class="form-card">
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Success!</strong> Your requirement has been posted successfully. It is now active and visible to sellers.
+                    <p class="mt-2">You will be redirected to your dashboard in a few seconds...</p>
+                </div>
+
+                <!-- Form Header -->
+                <div class="form-header">
+                    <h1 class="form-title">Post New Requirement</h1>
+                    <p class="form-subtitle">
+                        Fill in the details below to post your scrap material requirement. All fields marked with 
+                        <span class="required">*</span> are required.
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form id="requirementForm">
+                    <!-- Category and Subcategory -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="category" class="form-label">
+                                    Category <span class="required">*</span>
+                                </label>
+                                <select id="category" name="category" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="subcategory" class="form-label">
+                                    Subcategory <span class="required">*</span>
+                                </label>
+                                <select id="subcategory" name="subcategory" class="form-select" required >
+                                    <option value="">Select Subcategory</option>
+                                </select>
+                                <div id="subcategoryHelp" class="form-help">Please select a category first</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantity and Unit -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="quantity" class="form-label">
+                                    Quantity Required <span class="required">*</span>
+                                </label>
+                                <input type="number" id="quantity" name="quantity" class="form-control" 
+                                       placeholder="Enter quantity needed" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="unit" class="form-label">
+                                    Unit <span class="required">*</span>
+                                </label>
+                                <select id="unit" name="unit" class="form-select" required>
+                                    <option value="">Select Unit</option>
+                                    <option value="Kilograms">Kilograms</option>
+                                    <option value="Tons">Tons</option>
+                                    <option value="Pieces">Pieces</option>
+                                    <option value="Bundles">Bundles</option>
+                                    <option value="Bales">Bales</option>
+                                    <option value="Containers">Containers</option>
+                                    <option value="Cubic Meters">Cubic Meters</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group mb-4">
+                        <label for="description" class="form-label">
+                            Description<span class="required">*</span>
+                        </label>
+                        <textarea id="description" name="description" class="form-control form-textarea" 
+                                  placeholder="Provide detailed description of your requirement including quality specifications, intended use, and any special requirements..." 
+                                  required></textarea>
+                        <div class="form-help">
+                            Include details about material quality, condition requirements, intended use, and any special specifications
+                        </div>
+                    </div>
+
+                    <!-- Location Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="city_location" class="form-label">
+                                    City <span class="required">*</span>
+                                </label>
+                                <input type="text" id="city_location" name="city_location" class="form-control" 
+                                       placeholder="Enter city name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="state_location" class="form-label">
+                                    State <span class="required">*</span>
+                                </label>
+                                <select id="state_location" name="state_location" class="form-select" required>
+                                    <option value="">Select State</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="pincode_location" class="form-label">
+                                    Pincode <span class="required">*</span>
+                                </label>
+                                <input type="text" id="pincode_location" name="pincode_location" class="form-control" 
+                                       placeholder="Enter pincode" pattern="[0-9]{6}" maxlength="6" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="form-group mb-4">
+                        <label for="address" class="form-label">
+                            Complete Address <span class="required">*</span>
+                        </label>
+                        <textarea id="address" name="address" class="form-control" 
+                                  placeholder="Enter complete address including landmark if any..." 
+                                  rows="3" required></textarea>
+                        <div class="form-help">Provide complete address with landmarks for easy location identification</div>
+                    </div>
+
+                    <!-- Urgency and Validity Info -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="requirement-info-card">
+                                <div class="info-header">
+                                    <i class="fas fa-info-circle"></i>
+                                    <h6>Requirement Validity</h6>
+                                </div>
+                                <p class="info-text mb-2">
+                                    Your requirement will be active for <strong>7 days</strong> from the time of posting.
+                                    After that, it will automatically become inactive but can be revived from your dashboard.
+                                </p>
+                                <p class="info-text mb-0">
+                                    <i class="fas fa-eye text-success"></i> 
+                                    Active requirements are visible to all sellers in the marketplace.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <button type="submit" id="submitBtn" class="btn-primary w-100 text-white">
+                                Post Requirement
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/api_caller.js"></script>
+    <script src="/static/js/requirement_form.js"></script>
+    
+    <script>
+        // Initialize requirement form page with API endpoints
+        window.onload = async function () {
+            await RequirementFormApp("{{ csrf_token }}", "/marketplace-api/buyer-requirements/");
+        }
+    </script>
+</body>
+</html>
