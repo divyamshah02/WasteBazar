@@ -155,7 +155,7 @@
         background: rgba(255, 255, 255, 0.3);
         border-color: rgba(255, 255, 255, 0.5);
         color: white;
-        transform: translateY(-2px);
+        /* transform: translateY(-2px); */
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     }
 
@@ -425,11 +425,9 @@
             this.profileProgressBar.className = 'progress-bar';
             if (percentage < 30) {
                 this.profileProgressBar.classList.add('bg-danger');
-            } else if (percentage < 70) {
+            } else  {
                 this.profileProgressBar.classList.add('bg-warning');
-            } else {
-                this.profileProgressBar.classList.add('bg-success');
-            }
+            } 
         }
 
         showVerificationStatus() {

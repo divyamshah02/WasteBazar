@@ -1086,7 +1086,7 @@
     text-align: right;
 } */
 
-.completion-action .btn {
+/* .completion-action .btn {
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: white;
@@ -1108,7 +1108,7 @@
 .completion-action .btn:focus {
     outline: 2px solid rgba(255, 255, 255, 0.5);
     outline-offset: 2px;
-}
+} */
 
 /* Select wrapper with dropdown arrow */
 .select-wrapper {

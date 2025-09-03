@@ -45,6 +45,9 @@ async function initializeApp() {
         // Initialize logout button
         initializeSimpleLogout();
 
+        // Set up field highlighting removal listeners
+        setupFieldHighlightingListeners();
+
         // Load all data
         await loadAllData();
 
@@ -165,8 +168,6 @@ function updateProfileHeader(userDetails, corporateDetails) {
             if (!isIndividual && corporateDetails) {
                 if (corporateDetails.is_approved) {
                     verificationBadge = '<span class="profile-badge"><i class="fas fa-check-circle me-1"></i>Verified</span>';
-                } else {
-                    verificationBadge = '<span class="profile-badge badge-not-verified"><i class="fas fa-times-circle me-1"></i>Under Verification</span>';
                 }
             }
 
@@ -1210,6 +1211,9 @@ async function saveProfile() {
         if (success && response.success) {
             showSuccess('Profile updated successfully!');
 
+            // Remove all field highlighting (red borders)
+            removeFieldHighlighting();
+
             // Update all field values and placeholders with the saved data
             updateFieldsAfterSave(profileData);
 
@@ -1375,6 +1379,10 @@ async function saveCompanyInfo() {
 
         if (success && response.success) {
             showSuccess('Company information updated successfully!');
+
+            // Remove all field highlighting (red borders)
+            removeFieldHighlighting();
+
             toggleCompanyEdit(false);
 
             // Refresh profile data to get updated values
@@ -1936,14 +1944,249 @@ function completeProfile() {
     if (settingsTab) {
         settingsTab.click();
 
-        // Scroll to settings section after a short delay
+        // Scroll to settings section after a short delay and enable edit mode with highlighting
         setTimeout(() => {
-            const settingsSection = document.getElementById('settings');
+            const settingsSection = document.getElementById('settings-tab');
             if (settingsSection) {
                 settingsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Enable edit mode and highlight missing fields
+                enableEditModeAndHighlightMissing();
+
+                // Focus on first missing field after highlighting
+                setTimeout(() => {
+                    focusFirstMissingField();
+                }, 200);
             }
         }, 300);
     }
+}
+
+/**
+ * Enable edit mode and highlight missing fields
+ */
+function enableEditModeAndHighlightMissing() {
+    console.log('✏️ Enabling edit mode and highlighting missing fields');
+
+    // Enable edit mode for profile
+    toggleProfileEdit(true);
+
+    // For corporate users, also enable company edit mode
+    if (buyerData && buyerData.user_details && buyerData.user_details.role === 'buyer_corporate') {
+        toggleCompanyEdit(true);
+    }
+
+    // Highlight missing fields after a short delay to ensure edit mode is active
+    setTimeout(() => {
+        highlightMissingFields();
+    }, 100);
+}
+
+/**
+ * Highlight missing fields in red
+ */
+function highlightMissingFields() {
+    console.log('🔴 Highlighting missing fields');
+
+    if (!buyerData || !buyerData.user_details) {
+        console.log('❌ No buyer data available for highlighting');
+        return;
+    }
+
+    const userDetails = buyerData.user_details;
+    const corporateDetails = buyerData.corporate_details;
+    const isCorporate = userDetails.role === 'buyer_corporate';
+
+    // Define required fields based on user type
+    let requiredFields = [];
+
+    if (isCorporate) {
+        // Corporate user required fields
+        requiredFields = [
+            { field: 'name', element: 'fullName', value: userDetails.name },
+            { field: 'email', element: 'email', value: userDetails.email },
+            { field: 'contact_number', element: 'phone', value: userDetails.contact_number }
+        ];
+
+        // Corporate specific fields
+        if (corporateDetails && !corporateDetails.message) {
+            requiredFields.push(
+                { field: 'company_name', element: 'companyName', value: corporateDetails.company_name },
+                { field: 'gst_number', element: 'gstNumber', value: corporateDetails.gst_number },
+                { field: 'addressline1', element: 'companyAddressLine1', value: corporateDetails.addressline1 },
+                { field: 'addressline2', element: 'companyAddressLine2', value: corporateDetails.addressline2 },
+                { field: 'city', element: 'companyCity', value: corporateDetails.city },
+                { field: 'state', element: 'companyState', value: corporateDetails.state },
+                { field: 'address_pincode', element: 'companyPincode', value: corporateDetails.address_pincode }
+            );
+
+            // Check ID fields (PAN or CIN)
+            const hasIdDocument = corporateDetails.pan_number || corporateDetails.cin_number;
+            if (!hasIdDocument) {
+                const companyPanEl = document.getElementById('companyPanNumber');
+                const companyCinEl = document.getElementById('companyCinNumber');
+                if (companyPanEl) requiredFields.push({ field: 'pan_number', element: 'companyPanNumber', value: '' });
+                if (companyCinEl) requiredFields.push({ field: 'cin_number', element: 'companyCinNumber', value: '' });
+            }
+        }
+    } else {
+        // Individual user required fields
+        requiredFields = [
+            { field: 'name', element: 'fullName', value: userDetails.name },
+            { field: 'email', element: 'email', value: userDetails.email },
+            { field: 'contact_number', element: 'phone', value: userDetails.contact_number },
+            { field: 'addressline1', element: 'addressline1', value: userDetails.addressline1 },
+            { field: 'addressline2', element: 'addressline2', value: userDetails.addressline2 },
+            { field: 'city', element: 'cityname', value: userDetails.city },
+            { field: 'state', element: 'statename', value: userDetails.state },
+            { field: 'address_pincode', element: 'addresspincode', value: userDetails.address_pincode }
+        ];
+
+        // Check ID fields (PAN or Aadhar)
+        const hasIdDocument = userDetails.pan_number || userDetails.aadhar_number;
+        if (!hasIdDocument) {
+            const panEl = document.getElementById('panNumber');
+            const aadharEl = document.getElementById('individualAadharNumber');
+            if (panEl) requiredFields.push({ field: 'pan_number', element: 'panNumber', value: '' });
+            if (aadharEl) requiredFields.push({ field: 'aadhar_number', element: 'individualAadharNumber', value: '' });
+        }
+    }
+
+    // Apply highlighting to missing fields
+    requiredFields.forEach(fieldInfo => {
+        const element = document.getElementById(fieldInfo.element);
+        if (element && (!fieldInfo.value || fieldInfo.value.toString().trim() === '')) {
+            element.classList.add('missing-field');
+            console.log(`🔴 Highlighted missing field: ${fieldInfo.field}`);
+        }
+    });
+
+    // Add CSS for missing field highlighting if not already added
+    addMissingFieldStyles();
+
+    // Set up field highlighting listeners
+    setupFieldHighlightingListeners();
+}
+
+/**
+ * Focus on the first missing field
+ */
+function focusFirstMissingField() {
+    console.log('🎯 Focusing on first missing field');
+
+    const firstMissingField = document.querySelector('.missing-field');
+    if (firstMissingField) {
+        // Scroll the field into view
+        firstMissingField.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+
+        // Focus the field after a short delay
+        setTimeout(() => {
+            firstMissingField.focus();
+            console.log(`🎯 Focused on missing field: ${firstMissingField.id}`);
+        }, 500);
+    } else {
+        console.log('✅ No missing fields found to focus on');
+    }
+}
+
+/**
+ * Remove highlighting from a specific field
+ */
+function removeFieldHighlight(element) {
+    if (element) {
+        element.classList.remove('missing-field');
+    }
+}
+
+/**
+ * Remove all field highlighting
+ */
+function removeFieldHighlighting() {
+    console.log('✅ Removing field highlighting');
+    const highlightedFields = document.querySelectorAll('.missing-field');
+    highlightedFields.forEach(field => {
+        field.classList.remove('missing-field');
+    });
+}
+
+/**
+ * Check all fields and remove missing-field class from fields that have values
+ */
+function cleanupMissingFieldClasses() {
+    const allFormFields = document.querySelectorAll('input, select, textarea');
+    allFormFields.forEach(field => {
+        if (field.value && field.value.trim() !== '') {
+            removeFieldHighlight(field);
+        }
+    });
+}
+
+/**
+ * Set up event listeners to remove field highlighting when users start typing
+ */
+function setupFieldHighlightingListeners() {
+    console.log('🎯 Setting up field highlighting listeners');
+
+    // Add event listeners to all form inputs
+    const formFields = [
+        'fullName', 'email', 'phone', 'addressline1', 'addressline2',
+        'cityname', 'statename', 'addresspincode', 'panNumber', 'individualAadharNumber',
+        'companyName', 'gstNumber', 'companyAddressLine1', 'companyAddressLine2',
+        'companyCity', 'companyState', 'companyPincode', 'companyPanNumber', 'companyCinNumber'
+    ];
+
+    formFields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            // Remove highlighting when user starts typing
+            element.addEventListener('input', function () {
+                if (this.value && this.value.trim() !== '') {
+                    removeFieldHighlight(this);
+                }
+            });
+
+            // Remove highlighting when field gets focus
+            element.addEventListener('focus', function () {
+                if (this.value && this.value.trim() !== '') {
+                    removeFieldHighlight(this);
+                }
+            });
+        }
+    });
+}
+
+/**
+ * Add CSS styles for missing field highlighting
+ */
+function addMissingFieldStyles() {
+    // Check if styles already exist
+    if (document.getElementById('missing-field-styles')) {
+        return;
+    }
+
+    const style = document.createElement('style');
+    style.id = 'missing-field-styles';
+    style.textContent = `
+        .missing-field {
+            border: 2px solid #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+            background-color: rgba(220, 53, 69, 0.05) !important;
+        }
+        
+        .missing-field:focus {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        
+        .missing-field::placeholder {
+            color: #dc3545 !important;
+            opacity: 0.7;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 if (document.readyState === 'loading') {
