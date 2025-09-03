@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Listing - WasteBazar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/css/listing_form.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <style>
+        .form-container::before {
+            display: none !important;
+        }
+        .existing-image {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+        }
+        .existing-image img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .existing-image .image-remove-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .existing-images-container {
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .existing-images-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">WasteBazar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/listings">Marketplace</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/seller-profile">Dashboard</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Include Status Bar -->
+    {% include 'statusbar.html' %}
+
+    <div class="form-container" style="margin-top: 100px;">
+        <div class="container" style="max-width: 900px;">
+            <div class="form-card">
+                <!-- Loading Message -->
+                <div id="loadingMessage" class="text-center py-4">
+                    <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                    <p>Loading listing details...</p>
+                </div>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Success!</strong> Your listing has been updated successfully.
+                    <p class="mt-2">You will be redirected to your dashboard in a few seconds...</p>
+                </div>
+
+                <!-- Form Header -->
+                <div class="form-header" style="display: none;">
+                    <h1 class="form-title">Edit Listing</h1>
+                    <p class="form-subtitle">
+                        Update your listing details below. All fields marked with 
+                        <span class="required">*</span> are required.
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form id="listingEditForm" style="display: none;">
+                    <!-- Hidden field for listing ID -->
+                    <input type="hidden" id="listingId" name="listingId">
+
+                    <!-- Category and Subcategory -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="category" class="form-label">
+                                    Category <span class="required">*</span>
+                                </label>
+                                <select id="category" name="category" class="form-select" required disabled>
+                                    <option value="">Select Category</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="subcategory" class="form-label">
+                                    Subcategory <span class="required">*</span>
+                                </label>
+                                <select id="subcategory" name="subcategory" class="form-select" required disabled>
+                                    <option value="">Select Subcategory</option>
+                                </select>
+                                <div id="subcategoryHelp" class="form-help">Please select a category first</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantity and Unit -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="quantity" class="form-label">
+                                    Quantity <span class="required">*</span>
+                                </label>
+                                <input type="number" id="quantity" name="quantity" class="form-control" 
+                                       placeholder="Enter quantity" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="unit" class="form-label">
+                                    Unit <span class="required">*</span>
+                                </label>
+                                <select id="unit" name="unit" class="form-select" required>
+                                    <option value="">Select Unit</option>
+                                    <option value="Kilograms (KG)">Kilograms (KG)</option>
+                                    <option value="Tons">Tons</option>
+                                    <option value="Pieces">Pieces</option>
+                                    <option value="Bundles">Bundles</option>
+                                    <option value="Bales">Bales</option>
+                                    <option value="Containers">Containers</option>
+                                    <option value="Cubic Meters">Cubic Meters</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price Per Unit -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="pricePerUnit" class="form-label">
+                                    Price Per Unit <span class="required">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" id="pricePerUnit" name="pricePerUnit" class="form-control" 
+                                           placeholder="0.00" min="0" step="0.01" required>
+                                </div>
+                                <div class="form-help">Price per unit selected above (e.g., per KG, per piece)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group mb-4">
+                        <label for="description" class="form-label">
+                            Description<span class="required">*</span>
+                        </label>
+                        <textarea id="description" name="description" class="form-control form-textarea" 
+                                  placeholder="Provide detailed description of your material including quality, condition, and any special requirements..." 
+                                  required></textarea>
+                        <div class="form-help">
+                            Include details about material quality, condition, packaging, and any special handling requirements
+                        </div>
+                    </div>
+
+                    <!-- Featured Image -->
+                    <div class="form-group mb-4">
+                        <label for="featuredImage" class="form-label">
+                            Featured Image <span class="required">*</span>
+                        </label>
+                        
+                        <!-- Existing Featured Image -->
+                        <div id="existingFeaturedImage" class="existing-images-container" style="display: none;">
+                            <div class="existing-images-title">Current Featured Image:</div>
+                            <div id="existingFeaturedImageContainer"></div>
+                        </div>
+
+                        {% comment %} <div class="photo-upload-container">
+                            <div id="featuredDropZone" class="drop-zone featured-drop-zone">
+                                <input type="file" id="featuredImage" name="featuredImage" class="form-control" 
+                                       accept="image/*" style="display: none;">
+                                <div id="featuredImagePreview" class="featured-image-preview">
+                                    <!-- Featured image preview will be displayed here -->
+                                </div>
+                            </div>
+                            <div class="form-help">
+                                Upload a new featured image to replace the current one (JPG, PNG, WEBP - Max 5MB)
+                            </div>
+                        </div> {% endcomment %}
+                    </div>
+
+                    <!-- Gallery Images -->
+                    <div class="form-group mb-4">
+                        <label for="galleryImages" class="form-label">
+                            Gallery Images (Optional)
+                        </label>
+                        
+                        <!-- Existing Gallery Images -->
+                        <div id="existingGalleryImages" class="existing-images-container" style="display: none;">
+                            <div class="existing-images-title">Current Gallery Images:</div>
+                            <div id="existingGalleryImagesContainer"></div>
+                        </div>
+
+                        {% comment %} <div class="photo-upload-container">
+                            <div id="galleryDropZone" class="drop-zone gallery-drop-zone">
+                                <input type="file" id="galleryImages" name="galleryImages" class="form-control" 
+                                       accept="image/*" multiple style="display: none;">
+                                <div id="galleryPreviewContainer" class="gallery-preview-container">
+                                    <!-- Gallery images preview will be displayed here -->
+                                </div>
+                            </div>
+                            <div class="form-help">
+                                Upload up to 5 additional gallery images (JPG, PNG, WEBP - Max 5MB each)
+                            </div>
+                        </div> {% endcomment %}
+                    </div>
+
+                    <!-- Upload Status -->
+                    <div id="uploadStatus" class="upload-status mt-2"></div>
+                    <div id="imageCount" class="image-count mt-2"></div>
+
+                    <!-- Location Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="city_location" class="form-label">
+                                    City <span class="required">*</span>
+                                </label>
+                                <input type="text" id="city_location" name="city_location" class="form-control" 
+                                       placeholder="Enter city name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="state_location" class="form-label">
+                                    State <span class="required">*</span>
+                                </label>
+                                <select id="state_location" name="state_location" class="form-select" required>
+                                    <option value="">Select State</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="pincode_location" class="form-label">
+                                    Pincode <span class="required">*</span>
+                                </label>
+                                <input type="text" id="pincode_location" name="pincode_location" class="form-control" 
+                                       placeholder="Enter pincode" pattern="[0-9]{6}" maxlength="6" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="form-group mb-4">
+                        <label for="address" class="form-label">
+                            Complete Address <span class="required">*</span>
+                        </label>
+                        <textarea id="address" name="address" class="form-control" 
+                                  placeholder="Enter complete address including landmark if any..." 
+                                  rows="3" required></textarea>
+                        <div class="form-help">Provide complete address with landmarks for easy location identification</div>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="d-flex gap-3">
+                                <button type="button" id="cancelBtn" class="btn btn-secondary flex-fill">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </button>
+                                <button type="submit" id="submitBtn" class="btn-primary flex-fill text-white">
+                                    <i class="fas fa-save me-2"></i>Update Listing
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/api_caller.js"></script>
+    <script src="/static/js/listing_edit.js"></script>
+    
+    <script>
+        // Initialize listing edit page with API endpoints
+        window.onload = async function () {
+            // Get listing ID from URL (assuming URL like /listing-edit/123/)
+            const pathParts = window.location.pathname.split('/');
+            const listingId = pathParts[pathParts.length - 2]; // Get second to last part
+            
+            await ListingEditApp("{{ csrf_token }}", "/marketplace-api/listing-detail/", listingId);
+        }
+    </script>
+</body>
+</html>

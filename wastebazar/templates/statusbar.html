@@ -1,0 +1,478 @@
+<!-- Status Bar Component -->
+<div id="statusbar" class="alert alert-dismissible mb-0 text-center" style="display: none;">
+    <div class="w-100">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <i id="statusbar-icon" class="fas fa-exclamation-circle me-2"></i>
+                <span id="statusbar-message">Complete your account</span>
+            </div>
+        </div>
+        <!-- Profile Completion Status -->
+            <div class="profile-completion-card m-auto" id="profileCompletionCard" style="display: none;">
+                <div class="completion-content">
+                    <div class="completion-info">
+                        {% comment %} <h6 class="completion-title profile-completion-title">Complete Your Profile</h6>
+                        <p class="completion-text profile-completion-text">Complete your profile to get better recommendations</p> {% endcomment %}
+                        <div class="progress-container-profile">
+                            <div class="progress">
+                                <div class="progress-bar  " 
+                                     role="progressbar" 
+                                     id="profileProgressBar" 
+                                     style="width: 0%" 
+                                     aria-valuenow="0" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <span class="progress-percentage" id="profileProgressText">0%</span>
+                        </div>
+                    </div>
+                    <div class="completion-action">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="completeProfile()">
+                            <i class="fas fa-user-edit me-2"></i>Complete Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+<script src="/static/js/seller_profile.js"></script>
+<style>
+    #statusbar {
+        top:90px;
+        left: 0;
+        right: 0;
+       /* Much lower to ensure all dropdowns appear above */
+        border-radius: 0;
+        border: none;
+        font-weight: 500;
+        padding: 12px 0;
+        margin: 0;
+        width: 100%;
+        z-index:1;
+    }
+
+    /* Complete Account Status - Red */
+    #statusbar.alert-danger {
+        background-color: #dc5860;
+        color: white;
+    }
+
+    /* Account Being Verified Status - Orange */
+    #statusbar.alert-warning {
+        background-color: #ff9500;
+        color: white;
+    }
+
+    #statusbar .container {
+        max-width: 100%;
+    }
+
+    #statusbar-icon {
+        font-size: 16px;
+    }
+
+    #statusbar-message {
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    /* Profile Completion Styles - Copied from seller_profile.css */
+    .profile-completion-card {
+        border-radius: 16px;
+        padding-inline: 10%;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .completion-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+    }
+
+    .completion-info {
+        width: 100%;
+    }
+
+    .completion-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+
+    .completion-text {
+        margin-bottom: 1rem;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .progress-container-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .progress-container-profile .progress {
+        flex: 1;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .progress-container-profile .progress-bar {
+        background-color: #e6c94a;
+        transition: width 0.6s ease;
+    }
+
+    .progress-percentage {
+        font-weight: 600;
+        font-size: 1rem;
+        min-width: 45px;
+        text-align: right;
+        color: white;
+    }
+
+    .completion-action .btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-weight: 500;
+        width: max-content;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .completion-action .btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        /* transform: translateY(-2px); */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .completion-action .btn:focus {
+        outline: 2px solid rgba(255, 255, 255, 0.5);
+        outline-offset: 2px;
+    }
+
+    /* Missing Field Highlighting Styles */
+    .missing-field {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        transition: all 0.3s ease;
+    }
+
+    .missing-field:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5) !important;
+    }
+
+    .missing-card-header {
+        background-color: #fff5f5 !important;
+        border-color: #dc3545 !important;
+        transition: all 0.3s ease;
+    }
+
+    .missing-card-header h5 {
+        color: #dc3545 !important;
+    }
+
+    /* Enhanced form field styles for better UX */
+    .form-control.editable {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .form-control.editable:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.5);
+    }
+
+    .form-select.editable {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        transition: all 0.3s ease;
+    }
+
+    .form-select.editable:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.5);
+    }
+
+    /* Animation for field highlighting */
+    @keyframes highlightPulse {
+        0% {
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        50% {
+            box-shadow: 0 0 0 0.4rem rgba(220, 53, 69, 0.4);
+        }
+        100% {
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+    }
+
+    .missing-field.pulse {
+        animation: highlightPulse 2s ease-in-out infinite;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        #statusbar {
+            padding: 10px 0;
+        }
+        
+        #statusbar-icon,
+        #statusbar-message {
+            font-size: 14px;
+        }
+        
+        /* Profile completion card responsive adjustments */
+        .profile-completion-card {
+            margin-bottom: 1.5rem;
+            max-width: 95% !important;
+            margin: 0 auto !important;
+        }
+
+        .completion-content {
+            flex-direction: column;
+            gap: .5rem;
+            text-align: center;
+        }
+
+        .progress-container-profile {
+            width: 100%;
+            flex-direction: row;
+            gap: 0.75rem;
+            max-width: 90% !important;
+            margin: 0 auto !important;
+        }
+        
+        .progress-container-profile .progress {
+            width: 100% !important;
+        }
+
+        .completion-action {
+            width: 100%;
+        }
+
+        .completion-action .btn {
+            width: 100%;
+        }
+    }
+    
+    /* Ensure all dropdown menus appear above status bar */
+    .dropdown-menu,
+    .mega-dropdown-menu,
+    .navbar .dropdown-menu {
+        z-index: 1500 !important;
+    }
+
+    /* Ensure navbar itself has high z-index */
+    .navbar {
+        z-index: 1000 !important;
+    }
+</style>
+<script src="/static/js/api_caller.js"></script>
+
+<script>
+    class StatusBarHandler {
+        constructor() {
+            console.log('🚀 StatusBarHandler constructor called');
+            this.statusbar = document.getElementById('statusbar');
+            this.statusbarIcon = document.getElementById('statusbar-icon');
+            this.statusbarMessage = document.getElementById('statusbar-message');
+            this.profileCompletionCard = document.getElementById('profileCompletionCard');
+            this.profileProgressBar = document.getElementById('profileProgressBar');
+            this.profileProgressText = document.getElementById('profileProgressText');
+            
+            // API endpoints
+            this.profileCompletionApiUrl = '/user-api/profile-completion-api/';
+            this.csrf_token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            
+            this.init();
+        }
+
+        init() {
+            // Check status on page load
+            this.updateStatusBar();
+            
+            // Listen for storage changes (when localStorage is updated from other tabs/windows)
+            window.addEventListener('storage', () => {
+                this.updateStatusBar();
+            });
+
+            // Also check periodically in case localStorage changes in same tab
+            setInterval(() => {
+                this.updateStatusBar();
+            }, 30000); // Check every 30 seconds
+        }
+
+        async updateStatusBar() {
+            console.log('🔍 StatusBar updateStatusBar() method called');
+            const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
+            const userId = localStorage.getItem('user_id');
+            
+            console.log('📊 Status Bar Update:', { isLoggedIn, userId });
+            
+            // Hide status bar if user is not logged in
+            if (!isLoggedIn || !userId) {
+                this.hideStatusBar();
+                return;
+            }
+
+            try {
+                // Fetch profile completion data from API
+                const profileData = await this.fetchProfileCompletion(userId);
+                
+                if (profileData) {
+                    console.log('📊 Profile completion data:', profileData);
+                    
+                    // Update localStorage with fresh data
+                    localStorage.setItem('is_approved', profileData.is_approved);
+                    localStorage.setItem('profile_complete', profileData.profile_completed);
+                    
+                    // Determine status based on API data
+                    if (!profileData.profile_completed) {
+                        this.showCompleteAccountStatus(profileData);
+                    } else if (profileData.profile_completed && !profileData.is_approved) {
+                        this.showVerificationStatus();
+                    } else if (profileData.profile_completed) {
+                        this.hideStatusBar();
+                    }
+                } else {
+                    // Fallback to localStorage if API fails
+                    this.updateStatusBarFromLocalStorage();
+                }
+            } catch (error) {
+                console.error('❌ Error fetching profile completion:', error);
+                // Fallback to localStorage if API fails
+                this.updateStatusBarFromLocalStorage();
+            }
+        }
+
+        async fetchProfileCompletion(userId) {
+            try {
+                console.log('📡 Fetching profile completion for user:', userId);
+                
+                // Use the callApi function from api_caller.js
+                const [success, response] = await callApi('GET', `${this.profileCompletionApiUrl}${userId}/`, null, this.csrf_token);
+                
+                if (success && response.success) {
+                    return response.data;
+                } else {
+                    console.error('❌ API error:', response.error);
+                    return null;
+                }
+            } catch (error) {
+                console.error('❌ Network error:', error);
+                return null;
+            }
+        }
+
+        updateStatusBarFromLocalStorage() {
+            const isApproved = localStorage.getItem('is_approved') === 'true';
+            const profileComplete = localStorage.getItem('profile_complete') === 'true';
+            
+            console.log('📊 Fallback to localStorage:', { isApproved, profileComplete });
+            
+            if (!profileComplete) {
+                this.showCompleteAccountStatus(null);
+            } else if (profileComplete && !isApproved) {
+                this.showVerificationStatus();
+            } else if (profileComplete && isApproved) {
+                this.hideStatusBar();
+            }
+        }
+
+        showCompleteAccountStatus(profileData = null) {
+            this.statusbar.className = 'alert alert-danger alert-dismissible mb-0 text-center';
+            this.statusbarIcon.className = 'fas fa-exclamation-circle me-2';
+            this.statusbarMessage.textContent = 'COMPLETE YOUR ACCOUNT';
+            this.statusbar.style.display = 'block';
+            
+            // Show profile completion progress if data is available
+            if (profileData && this.profileCompletionCard && this.profileProgressBar && this.profileProgressText) {
+                this.updateProfileCompletionProgress(profileData);
+                this.profileCompletionCard.style.display = 'block';
+            } else if (this.profileCompletionCard) {
+                this.profileCompletionCard.style.display = 'none';
+            }
+        }
+
+        updateProfileCompletionProgress(profileData) {
+            const percentage = profileData.completion_percentage || 0;
+            
+            console.log('📊 Updating progress bar to:', percentage + '%');
+            
+            // Update progress bar
+            this.profileProgressBar.style.width = `${percentage}%`;
+            this.profileProgressBar.setAttribute('aria-valuenow', percentage);
+            this.profileProgressText.textContent = `${percentage}%`;
+            
+            // Update progress bar color based on completion
+            this.profileProgressBar.className = 'progress-bar';
+            if (percentage < 30) {
+                this.profileProgressBar.classList.add('bg-danger');
+            } else  {
+                this.profileProgressBar.classList.add('bg-warning');
+            } 
+        }
+
+        showVerificationStatus() {
+            this.statusbar.className = 'alert alert-warning alert-dismissible mb-0 text-center';
+            this.statusbarIcon.className = 'fas fa-clock me-2';
+            this.statusbarMessage.textContent = 'YOUR ACCOUNT IS BEING VERIFIED';
+            this.statusbar.style.display = 'block';
+            
+            // Hide profile completion card during verification
+            if (this.profileCompletionCard) {
+                this.profileCompletionCard.style.display = 'none';
+            }
+        }
+
+        hideStatusBar() {
+            this.statusbar.style.display = 'none';
+            if (this.profileCompletionCard) {
+                this.profileCompletionCard.style.display = 'none';
+            }
+        }
+    }
+
+    // Global function for complete profile button
+    function completeProfile() {
+        const userRole = localStorage.getItem('user_role');
+        
+        if (userRole && (userRole.includes('seller') || userRole.includes('buyer'))) {
+            // Redirect to appropriate profile page
+            if (userRole.includes('seller')) {
+                window.location.href = '/seller-profile/';
+            } else if (userRole.includes('buyer')) {
+                window.location.href = '/buyer-profile/';
+            }
+        } else {
+            // Fallback - redirect to dashboard
+            window.location.href = '/dashboard/';
+        }
+    }
+
+    // Initialize status bar when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🎯 StatusBar DOMContentLoaded event fired - initializing StatusBarHandler');
+        // Add 500ms delay to ensure all elements are loaded
+        setTimeout(function() {
+            new StatusBarHandler();
+        }, 500);
+    });
+</script>

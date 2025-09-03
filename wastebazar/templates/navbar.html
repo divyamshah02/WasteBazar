@@ -1,0 +1,212 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg" id="navbar">
+    <div class="container">
+        <a class="navbar-brand" href="/">WasteBazar</a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <!-- Categories and Marketplace (always visible) -->
+                <li class="nav-item dropdown mega-dropdown">
+                    <a class="nav-link" href="#" id="categoriesDropdown" role="button" aria-expanded="false">
+                        <i class="fas fa-th-list me-1"></i>Categories
+                    </a>
+                    <div class="dropdown-menu mega-dropdown-menu">
+                        <div class="container">
+                            <div class="row">
+                                <!-- Plastic Waste Category -->
+                                <div class="col-md-12">
+                                    <div class="mega-dropdown-column">
+                                        <a href="/marketplace/?category=plastic" class="mega-dropdown-header">
+                                            <i class="fas fa-recycle me-2"></i>Plastic Waste
+                                        </a>
+                                        <a href="/marketplace/?category=paper" class="mega-dropdown-header">
+                                            <i class="fas fa-newspaper me-2"></i>Paper Waste
+                                        </a>
+                                        
+                                        <a href="/marketplace/?category=electronics" class="mega-dropdown-header">
+                                            <i class="fas fa-microchip me-2"></i>Electronic Waste
+                                        </a>
+                                        <a href="/marketplace/?category=metal" class="mega-dropdown-header">
+                                            <i class="fas fa-industry me-2"></i>Metal Scrap
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                            
+                            
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/marketplace/">
+                        <i class="fas fa-store me-1"></i>Marketplace
+                    </a>
+                </li>
+
+                <!-- Role-specific navigation for logged-in users (hidden by default) -->
+                <!-- Buyer-specific navigation (hidden by default) -->
+                <li class="nav-item" id="buyer-nav-item" style="display: none;">
+                    <a class="nav-link" href="/requirement-form/">
+                        <i class="fas fa-plus-circle me-1"></i>Post Requirement
+                    </a>
+                </li>
+                <!-- Seller-specific navigation (hidden by default) -->
+                <li class="nav-item" id="seller-nav-item" style="display: none;">
+                    <a class="nav-link" href="/listing-form/">
+                        <i class="fas fa-plus-square me-1"></i>Post Listing
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- Conditional Authentication Section -->
+            <div id="auth-section" class="z-1000">
+                <!-- This will be populated by JavaScript based on localStorage -->
+                <!-- Default to login/register buttons, JS will replace if user is logged in -->
+                <div class=" gap-2" id="login-buttons">
+                    <a href="/directlogin" class="btn btn-outline-primary">Login</a>
+                    <a href="/register" class="btn-registration">Register</a>
+                </div>
+                
+                <!-- User dropdown (hidden by default) -->
+                <div class="dropdown " id="user-dropdown" style="display: none;">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle me-1" style="font-size: 1.5rem;"></i>
+                        <span class="d-none d-md-inline" id="user-display-name">User</span>
+                    </a>
+                    <ul class="dropdown-menu  dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li>
+                            <a class="dropdown-item" href="/profile/" id="profile-link">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a class="dropdown-item" href="#" id="logout-link">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+        
+<!-- Include Status Bar -->
+
+</nav>
+{% include 'statusbar.html' %}
+
+
+<!-- Navbar Authentication Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add 500ms delay to ensure all elements are loaded
+        setTimeout(function() {
+            const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
+            const userId = localStorage.getItem('user_id');
+            const userRole = localStorage.getItem('user_role');
+            const userName = localStorage.getItem('user_name');
+        
+        const loginButtons = document.getElementById('login-buttons');
+        const userDropdown = document.getElementById('user-dropdown');
+        const userDisplayName = document.getElementById('user-display-name');
+        const profileLink = document.getElementById('profile-link');
+        const logoutLink = document.getElementById('logout-link');
+        const buyerNavItem = document.getElementById('buyer-nav-item');
+        const sellerNavItem = document.getElementById('seller-nav-item');
+
+        console.log('Is logged in:', isLoggedIn);
+        console.log('User ID:', userId);
+        console.log('User Role:', userRole);
+        console.log('User Name:', userName);
+        
+        // Debug: Check if elements exist
+        console.log('Login buttons element:', loginButtons);
+        console.log('User dropdown element:', userDropdown);
+        console.log('Buyer nav item:', buyerNavItem);
+        console.log('Seller nav item:', sellerNavItem);
+        
+        if (isLoggedIn && userId && userId !== 'null') {
+            // User is logged in, show user navigation and dropdown
+            if (loginButtons) loginButtons.style.display = 'none';
+            if (userDropdown) userDropdown.style.display = 'block';
+           let userprofilelink='';
+            // Show role-specific navigation items
+            if (userRole && userRole.includes('buyer')) {
+                // Show Post Requirement for buyers
+                 userprofilelink = '/buyer-profile/';
+                if (buyerNavItem) buyerNavItem.style.display = 'block';
+                if (sellerNavItem) sellerNavItem.style.display = 'none';
+                console.log('👤 Showing buyer navigation (Post Requirement)');
+            } else if (userRole && userRole.includes('seller')) {
+                 userprofilelink = '/seller-profile/';
+                // Show Post Listing for sellers
+                if (buyerNavItem) buyerNavItem.style.display = 'none';
+                if (sellerNavItem) sellerNavItem.style.display = 'block';
+                console.log('🏪 Showing seller navigation (Post Listing)');
+            } else {
+                // Hide both if role is unknown
+                if (buyerNavItem) buyerNavItem.style.display = 'none';
+                if (sellerNavItem) sellerNavItem.style.display = 'none';
+                console.log('❓ Unknown role, hiding role-specific navigation');
+            }
+            
+            // Set user display name from localStorage
+            if (userName && userDisplayName) {
+                userDisplayName.textContent = userName;
+            } else if (userId && userDisplayName) {
+                // Fallback to userId if userName is not available
+                userDisplayName.textContent = userName;
+            }
+            
+            // Set profile link based on user role
+            if (userRole && profileLink) {
+                profileLink.href = userprofilelink;
+            }
+            
+            // Handle logout
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Use the global logout function if available (from sellerprofile.js)
+                    if (typeof window.logout === 'function') {
+                        window.logout();
+                    } else {
+                        // Fallback logout implementation
+                        if (confirm('Are you sure you want to logout?')) {
+                            // Clear localStorage
+                            localStorage.removeItem('is_logged_in');
+                            localStorage.removeItem('user_id');
+                            localStorage.removeItem('user_role');
+                            localStorage.removeItem('user_name');
+                            localStorage.removeItem('login_timestamp');
+                            localStorage.removeItem('is_approved');
+                            localStorage.removeItem('profile_complete');
+                            
+                            // Show success message
+                            console.log('✅ User logged out successfully');
+                            
+                            // Reload page to show login buttons
+                            window.location.reload();
+                        }
+                    }
+                });
+            }
+        } else {
+            // User is not logged in, show login buttons and hide role-specific navigation
+            if (loginButtons) loginButtons.style.display = 'flex';
+            if (userDropdown) userDropdown.style.display = 'none';
+            if (buyerNavItem) buyerNavItem.style.display = 'none';
+            if (sellerNavItem) sellerNavItem.style.display = 'none';
+        }
+        }, 500); // 500ms delay
+    });
+</script>

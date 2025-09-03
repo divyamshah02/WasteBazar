@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Listing - WasteBazar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/css/listing_form.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <style>
+        .form-container::before {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    {%include 'navbar.html' %}
+
+    <!-- Include Status Bar -->
+    {% include 'statusbar.html' %}
+
+    <div class="form-container" style="margin-top: 100px;">
+        <div class="container" style="max-width: 900px;">
+            <div class="form-card mt-2">
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Success!</strong> Your listing has been created successfully. It will be reviewed and published shortly.
+                    <p class="mt-2">You will be redirected to your dashboard in a few seconds...</p>
+                </div>
+
+                <!-- Form Header -->
+                <div class="form-header">
+                    <h1 class="form-title">Create New Listing</h1>
+                    <p class="form-subtitle">
+                        Fill in the details below to create your scrap material listing. All fields marked with 
+                        <span class="required">*</span> are required.
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form id="listingForm">
+                    <!-- Listing Name -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="listing_name" class="form-label">
+                                    Listing Title <span class="required">*</span>
+                                </label>
+                                <input type="text" id="listing_name" name="listing_name" class="form-control" 
+                                       placeholder="Ex : Scrap Copper wires" required>
+                                <div class="form-help">
+                                    Provide a clear and descriptive title that highlights the key features of your material
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category and Subcategory -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="category" class="form-label">
+                                    Category <span class="required">*</span>
+                                </label>
+                                <select id="category" name="category" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                    <option value="plastic">Plastic Waste</option>
+                                    <option value="metal">Metal Scrap</option>
+                                    <option value="paper">Paper Waste</option>
+                                    <option value="electronic">Electronic Waste</option>
+                                    <option value="textile">Textile Waste</option>
+                                    <option value="glass">Glass Waste</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="subcategory" class="form-label">
+                                    Subcategory <span class="required">*</span>
+                                </label>
+                                <select id="subcategory" name="subcategory" class="form-select" required >
+                                    <option value="">Select Subcategory</option>
+                                </select>
+                                <div id="subcategoryHelp" class="form-help">Please select a category first</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quantity and Unit -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="quantity" class="form-label">
+                                    Quantity <span class="required">*</span>
+                                </label>
+                                <input type="number" id="quantity" name="quantity" class="form-control" 
+                                       placeholder="Enter quantity" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="unit" class="form-label">
+                                    Unit <span class="required">*</span>
+                                </label>
+                                <select id="unit" name="unit" class="form-select" required>
+                                    <option value="">Select Unit</option>
+                                    <option value="Kilograms">Kilograms</option>
+                                    <option value="Tons">Tons</option>
+                                    <option value="Pieces">Pieces</option>
+                                    <option value="Bundles">Bundles</option>
+                                    <option value="Bales">Bales</option>
+                                    <option value="Containers">Containers</option>
+                                    <option value="Cubic Meters">Cubic Meters</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seller Name and Price Per Unit -->
+                    <div class="row mb-4">
+    
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="pricePerUnit" class="form-label" id="pricePerUnitLabel">
+                                    Price Per Unit <span class="required">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" id="pricePerUnit" name="pricePerUnit" class="form-control" 
+                                           placeholder="0.00" min="0" step="0.01" required>
+                                </div>
+                                <div class="form-help" id="pricePerUnitHelp">Price per unit selected above (e.g., per KG, per piece)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Packaging and Storage Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="waste_packed_type" class="form-label">
+                                    Waste Packed Type
+                                </label>
+                                <select id="waste_packed_type" name="waste_packed_type" class="form-select">
+                                    <option value="">Select Packed Type</option>
+                                    <option value="bags">Bags</option>
+                                    <option value="box">Box</option>
+                                    <option value="lumps">Lumps</option>
+                                    <option value="rolls">Rolls</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="waste_stored" class="form-label">
+                                    Waste Stored
+                                </label>
+                                <select id="waste_stored" name="waste_stored" class="form-select">
+                                    <option value="">Select Storage</option>
+                                    <option value="indoor">Indoor</option>
+                                    <option value="outdoor">Outdoor</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group mb-4">
+                        <label for="description" class="form-label">
+                            Description<span class="required">*</span>
+                        </label>
+                        <textarea id="description" name="description" class="form-control form-textarea" 
+                                  placeholder="Provide detailed description of your material including quality, condition, and any special requirements..." 
+                                  required></textarea>
+                        <div class="form-help">
+                            Include details about material quality, condition, packaging, and any special handling requirements
+                        </div>
+                    </div>
+
+                    <!-- Featured Image -->
+                    <div class="form-group mb-4">
+                        <label for="featuredImage" class="form-label">
+                            Featured Image <span class="required">*</span>
+                        </label>
+                        <div class="photo-upload-container">
+                            <div id="featuredDropZone" class="drop-zone featured-drop-zone">
+                                <input type="file" id="featuredImage" name="featuredImage" class="form-control" 
+                                       accept="image/*" style="display: none;">
+                                <div id="featuredImagePreview" class="featured-image-preview">
+                                    <!-- Featured image preview will be displayed here -->
+                                </div>
+                            </div>
+                            <div class="form-help">
+                                Upload one high-quality featured image (JPG, PNG, WEBP - Max 5MB)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Images -->
+                    <div class="form-group mb-4">
+                        <label for="galleryImages" class="form-label">
+                            Gallery Images (Optional)
+                        </label>
+                        <div class="photo-upload-container">
+                            <div id="galleryDropZone" class="drop-zone gallery-drop-zone">
+                                <input type="file" id="galleryImages" name="galleryImages" class="form-control" 
+                                       accept="image/*" multiple style="display: none;">
+                                <div id="galleryPreviewContainer" class="gallery-preview-container">
+                                    <!-- Gallery images preview will be displayed here -->
+                                </div>
+                            </div>
+                            <div class="form-help">
+                                Upload up to 5 additional gallery images (JPG, PNG, WEBP - Max 5MB each)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Status -->
+                    <div id="uploadStatus" class="upload-status mt-2"></div>
+                    <div id="imageCount" class="image-count mt-2"></div>
+
+                    <!-- Location Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="city_location" class="form-label">
+                                    City <span class="required">*</span>
+                                </label>
+                                <input type="text" id="city_location" name="city_location" class="form-control" 
+                                       placeholder="Enter city name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="state_location" class="form-label">
+                                    State <span class="required">*</span>
+                                </label>
+                                <select id="state_location" name="state_location" class="form-select" required>
+                                    <option value="">Select State</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="pincode_location" class="form-label">
+                                    Pincode <span class="required">*</span>
+                                </label>
+                                <input type="text" id="pincode_location" name="pincode_location" class="form-control" 
+                                       placeholder="Enter pincode" pattern="[0-9]{6}" maxlength="6" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="form-group mb-4">
+                        <label for="address" class="form-label">
+                            One line Address <span class="required">*</span>
+                        </label>
+                        <textarea id="address" name="address" class="form-control" 
+                                  placeholder="Enter one line address eg. Andheri west" 
+                                  rows="3" required></textarea>
+                        <div class="form-help">Provide one line address with landmarks for easy location identification</div>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <button type="submit" id="submitBtn" class="btn-primary w-100 text-white">
+                                <i class="fas fa-plus me-2"></i>Create Listing
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/api_caller.js"></script>
+    <script src="/static/js/listing_form.js"></script>
+    
+    <script>
+        // Initialize listing form page with API endpoints
+        window.onload = async function () {
+            await ListingsFormApp("{{ csrf_token }}", "/marketplace-api/seller-listings/");
+        }
+    </script>
+</body>
+</html>

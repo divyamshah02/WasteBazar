@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 import random
 import string
+from dateutil.relativedelta import relativedelta
 
 # Utility to generate custom user_id
 def generate_user_id(role):
@@ -37,8 +38,17 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=USER_ROLES)
     name = models.CharField(max_length=255)
     contact_number = models.CharField(max_length=15, unique=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
+    pan_number = models.CharField(max_length=20, blank=True, null=True)
+    aadhar_number = models.CharField(max_length=12, blank=True, null=True)
+    addressline1 = models.TextField(blank=True, null=True)
+    addressline2 = models.TextField(blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    address_pincode = models.CharField(max_length=10, blank=True, null=True)
     is_approved = models.BooleanField(default=False)
+    profile_completed = models.BooleanField(default=False)
+    preferred_category = models.BigIntegerField(null=True)
     is_deleted = models.BooleanField(default=False)
 
     # Override save to assign user_id automatically
@@ -49,8 +59,8 @@ class User(AbstractUser):
             self.username = new_user_id
 
         # if self.role in ['buyer_corporate', 'seller_corporate']:
-        if self.role != 'buyer_corporate':
-            self.is_approved = True
+        # if self.role != 'buyer_corporate':
+        #     self.is_approved = True
 
         super().save(*args, **kwargs)
 
@@ -65,9 +75,15 @@ class CorporateUserDetail(models.Model):
     contact_number = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True)
     company_name = models.CharField(max_length=255)
-    pan_number = models.CharField(max_length=20)
+    pan_number = models.CharField(max_length=20,blank=True,null=True)
+    aadhar_number = models.CharField(max_length=12, blank=True, null=True)
+    cin_number = models.CharField(max_length=21, blank=True, null=True)
     gst_number = models.CharField(max_length=20, blank=True, null=True)
-    address = models.TextField()
+    city = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    addressline1 = models.TextField(blank=True, null=True)
+    addressline2 = models.TextField(blank=True, null=True)
+    address_pincode = models.CharField(max_length=10, blank=True, null=True)
     certificate_url = models.URLField(blank=True, null=True)  # S3 link or similar
     is_approved = models.BooleanField(default=False)
     approved_at = models.DateTimeField(blank=True, null=True)
@@ -93,3 +109,88 @@ class OTPVerification(models.Model):
 
     def __str__(self):
         return f"{self.mobile} - {self.otp}"
+
+
+
+# Wallet Model for Buyer Credits
+class Wallet(models.Model):
+    USER_ROLES = [
+        ('admin', 'Admin'),
+        ('buyer_individual', 'Buyer - Individual'),
+        ('buyer_corporate', 'Buyer - Corporate'),
+        ('seller_individual', 'Seller - Individual'),
+        ('seller_corporate', 'Seller - Corporate'),
+    ]
+    user_id = models.CharField(max_length=20, unique=True)
+    role = models.CharField(max_length=20, choices=USER_ROLES)
+    
+    # Separate fields for free and paid credits
+    free_credits = models.PositiveIntegerField(default=0)
+    paid_credits = models.PositiveIntegerField(default=0)
+    
+    # For credit purchases (tracking the date when credits were last purchased)
+    last_credit_purchase = models.DateTimeField(blank=True, null=True)
+    
+    # Fields for tracking the free credit reset
+    last_free_credit_reset = models.DateTimeField(auto_now_add=True)
+    free_credit_reset_date = models.DateTimeField()
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def save(self, *args, **kwargs):
+        # Set free_credit_reset_date based on role if not already set
+        self.last_credit_purchase = timezone.now()
+        if not self.free_credit_reset_date:
+            if self.role == 'buyer_individual':
+                # Individual buyers: 365 days from creation
+                self.free_credit_reset_date = timezone.now() + relativedelta(days=365)
+            elif self.role == 'buyer_corporate':
+                # Corporate buyers: 1 month from creation
+                self.free_credit_reset_date = timezone.now() + relativedelta(months=1)
+        
+        super().save(*args, **kwargs)
+    
+    def reset_free_credits_if_due(self):
+        """Reset free credits if the reset date has passed"""
+        current_time = timezone.now()
+        
+        # Check if reset date has passed (including today)
+        if current_time.date() >= self.free_credit_reset_date.date():
+            if self.role == 'buyer_individual':
+                self.free_credits = 5
+                self.free_credit_reset_date = current_time + relativedelta(days=365)
+            elif self.role == 'buyer_corporate':
+                self.free_credits = 3
+                self.free_credit_reset_date = current_time + relativedelta(months=1)
+            
+            self.last_free_credit_reset = current_time
+            self.save()
+            return True
+        return False
+ 
+    def get_total_credits(self):
+        """Get total available credits"""
+        return self.free_credits + self.paid_credits
+    
+    def deduct_credits(self, amount=1):
+        """Deduct credits (first from free, then from paid)"""
+        # Check if we have enough total credits
+        if self.get_total_credits() < amount:
+            return False
+        
+        # If we have enough free credits, deduct from free only
+        if self.free_credits >= amount:
+            self.free_credits -= amount
+        else:
+            # If free credits are not enough, use all free credits and deduct remaining from paid
+            remaining_amount = amount - self.free_credits
+            self.free_credits = 0
+            self.paid_credits -= remaining_amount
+        
+        self.save()
+        return True
+ 
+    def __str__(self):
+        return f"Wallet for {self.user_id} - Free: {self.free_credits}, Paid: {self.paid_credits}"
+

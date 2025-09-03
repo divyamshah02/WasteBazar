@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Profile - WasteBazar</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="stylesheet" href="/static/css/seller_profile.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <!-- Loader -->
+    <div id="spinner" class="spinner-container">
+        <div class="spinner">
+            <!-- You can replace this with your actual logo path -->
+            {% comment %} <img src="/static/images/wastebazzar-logo.png" alt="WasteBazar Logo" class="spinner-logo" onerror="this.style.display='none'" /> {% endcomment %}
+        </div>
+        <div class="loading-text">Loading WasteBazar...</div>
+    </div>
+    {% include 'navbar.html' %}
+
+    
+
+    <div class="profile-container">
+        <div class="container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-info">
+                    <div class="profile-avatar">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="profile-details">
+                        <h1 id="sellerName">Name</h1>
+                        <p class="mb-2 text-white-50" id="headerCompanyName">Company Name</p>
+                        <div class="profile-badges">
+                            <span class="profile-badge" id="sellerType">
+                                <i class="fas fa-building me-1"></i>Seller Type
+                            </span>
+                            <span class="profile-badge" id="verificationBadge">
+                                <i class="fas fa-check-circle me-1"></i>Verified
+                            </span>
+                            {% comment %} <span class="profile-badge">
+                                <i class="fas fa-calendar me-1"></i>Member since 2024
+                            </span> {% endcomment %}
+                        </div>
+                        <div class="profile-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-envelope me-1"></i>
+                                <span id="sellerEmail">Seller Email</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-phone me-1"></i>
+                                <span id="sellerPhone">Seller Phone</span>
+                            </div>
+                            {% comment %} <div class="meta-item">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                <span id="sellerAddress">Seller Address</span>
+                            </div> {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-value" id="totalListings">0</div>
+                    <div class="stat-label">Total Listings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="stat-value" id="activeListings">0</div>
+                    <div class="stat-label">Active Listings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="stat-value" id="soldItems">0</div>
+                    <div class="stat-label">Items Sold</div>
+                </div>
+                {% comment %} <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-value" id="totalCredits">0</div>
+                    <div class="stat-label">Total Credits</div>
+                </div> {% endcomment %}
+            </div>
+
+            <!-- Profile Completion Status -->
+            <div class="profile-completion-card" id="profileCompletionCard" style="display: none;">
+                <div class="completion-content">
+                    <div class="completion-info">
+                        <h6 class="completion-title profile-completion-title">Complete Your Profile</h6>
+                        <p class="completion-text profile-completion-text">Complete your profile to get better recommendations</p>
+                        <div class="progress-container-profile">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped " 
+                                     role="progressbar" 
+                                     id="profileProgressBar" 
+                                     style="width: 0%" 
+                                     aria-valuenow="0" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <span class="progress-percentage" id="profileProgressText">0%</span>
+                        </div>
+                    </div>
+                    <div class="completion-action">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="completeProfile()">
+                            <i class="fas fa-user-edit me-2"></i>Complete Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="content-grid">
+                <!-- Main Content -->
+                <div class="main-content">
+                    <div class="content-tabs mb-4">
+                        <button class="tab-button-home active" data-tab="approvedlistings">
+                            <i class="fas fa-boxes me-2"></i>Approved Listings
+                        </button>
+                        <button class="tab-button-home" data-tab="unapprovedlistings">
+                            <i class="fas fa-chart-line me-2"></i>Unapproved Listings
+                        </button>
+                        <button class="tab-button-home" data-tab="settings">
+                            <i class="fas fa-cog me-2"></i>Settings
+                        </button>
+                    </div>
+
+                    <!-- Listings Tab -->
+                    <div class="tab-content active" id="listings-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3>Approved Listings</h3>
+                            <a href="/listing-form/" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>New Listing
+                            </a>
+                        </div>
+                        <div id="listings-container">
+                            <!-- Sample Listings -->
+                            {% comment %} <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="card-title mb-1">Plastic Waste - PET Bottles</h5>
+                                            <small class="text-muted">#LST001</small>
+                                        </div>
+                                        <span class="badge bg-success">Active</span>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-3">
+                                            <i class="fas fa-weight-hanging me-2 text-primary"></i>
+                                            <strong>500 kg</strong>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <i class="fas fa-rupee-sign me-2 text-primary"></i>
+                                            <strong>₹15/kg</strong>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <i class="fas fa-eye me-2 text-primary"></i>
+                                            <strong>24 views</strong>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                            Mumbai
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="card-text">Clean PET bottles in excellent condition. Sorted and washed. Ready for pickup.</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>Listed: Jan 15, 2024 | 
+                                                <i class="fas fa-clock me-1"></i>Expires: Feb 15, 2024
+                                            </small>
+                                        </div>
+                                        <div class="listing-actions">
+                                            <button class="btn-action btn-edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button class="btn-action btn-pause">
+                                                <i class="fas fa-pause"></i> Pause
+                                            </button>
+                                            <button class="btn-action btn-details">
+                                                <i class="fas fa-eye"></i> Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> {% endcomment %}
+
+                             <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="card-title mb-1">Plastic Waste - PET Bottles</h5>
+                                            <small class="text-muted">#1234567890</small>
+                                        </div>
+                                        <span class="badge bg-success">Active</span>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <i class="fas fa-weight-hanging me-2 text-primary"></i>
+                                            <strong>500 kg</strong>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                            Andheri East, Mumbai
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="card-text">Looking for clean PET bottles in good condition for recycling. Should be sorted and washed.</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>Created: Jan 15, 2024 | 
+                                                <i class="fas fa-clock me-1"></i>Valid until: Feb 15, 2024
+                                            </small>
+                                        </div>
+                                        <div class="requirement-actions">
+                                            <button class="btn-action btn-edit" onclick="editRequirement('1234567890')">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button class="btn-action btn-pause" onclick="pauseRequirement('1234567890')">
+                                                <i class="fas fa-pause"></i> Pause
+                                            </button>
+                                            <button class="btn-action btn-details" onclick="viewRequirementDetails('1234567890')">
+                                                <i class="fas fa-eye"></i> Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sales Tab -->
+                    <div class="tab-content" id="unapprovedlistings-tab">
+                        <h3 class="mb-4">Unapproved Listings</h3>
+                        <div id="unapproved-listings-container">
+                            <!-- Unapproved listings will be populated here -->
+                            <div class="empty-state text-center py-5" id="no-unapproved-listings" style="display: none;">
+                                <div class="empty-icon mb-3">
+                                    <i class="fas fa-clock fa-3x text-muted"></i>
+                                </div>
+                                <h4>No Unapproved Listings</h4>
+                                <p class="text-muted">All your listings are approved or you haven't created any listings yet.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div class="tab-content" id="settings-tab">
+                        <h3 class="mb-4">Account Settings</h3>
+                        <div id="settings-container">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <!-- Profile Information Form -->
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <i class="fas fa-user me-2"></i>Profile Information
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="profileForm">
+                                                <!-- Basic Profile Fields (Common for both Individual and Corporate) -->
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="fullName" class="form-label">Full Name</label>
+                                                        <input type="text" class="form-control" id="fullName" readonly required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="email" class="form-label">Email Address</label>
+                                                        <input type="email" class="form-control" id="email" readonly required>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="phone" class="form-label">
+                                                            <i class="fas fa-lock text-muted me-1" title="Phone number cannot be changed"></i>
+                                                            Phone Number
+                                                        </label>
+                                                        <input type="tel" class="form-control" id="phone" readonly required>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="userType" class="form-label">Account Type</label>
+                                                        <select class="form-select" id="userType" readonly disabled>
+                                                            <option value="seller_individual">Individual Seller</option>
+                                                            <option value="seller_corporate">Corporate Seller</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Individual User Specific Fields (Hidden for Corporate Users) -->
+                                                <div id="individualFields">
+                                                    <!-- ID Type Selection -->
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="individualIdSelect" class="form-label">Select ID Type</label>
+                                                            <div class="select-wrapper">
+                                                                <select class="form-select" id="individualIdSelect" name="individualIdSelect" readonly disabled>
+                                                                    <option value="pan" selected>PAN Number</option>
+                                                                    <option value="aadhar">Aadhar Card</option>
+                                                                </select>
+                                                                <i class="fas fa-chevron-down select-arrow"></i>
+                                                            </div>
+                                                        </div>
+                                                        <!-- PAN/Aadhar Fields -->
+                                                        <div class="col-6">
+                                                            <div class=" mb-3" id="individualPanGroup">
+                                                                <label for="panNumber" class="form-label">PAN Number</label>
+                                                                <input type="text" class="form-control" id="panNumber" name="panNumber" placeholder="Enter PAN number" readonly>
+                                                            </div>
+                                                            <div class=" mb-3" id="individualAadharGroup" style="display:none">
+                                                                <label for="individualAadharNumber" class="form-label">Aadhar Number</label>
+                                                                <input type="text" class="form-control" id="individualAadharNumber" name="individualAadharNumber" placeholder="Enter Aadhar number" maxlength="12" readonly>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Address Fields for Individual Users -->
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="addressline1" class="form-label">Address Line 1</label>
+                                                            <input type="text" class="form-control" id="addressline1" name="addressline1" placeholder="Enter your address line 1" readonly>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="addressline2" class="form-label">Address Line 2</label>
+                                                            <input type="text" class="form-control" id="addressline2" name="addressline2" placeholder="Enter your address line 2" readonly>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="row">
+                                                        <div class="col-md-4 mb-3">
+                                                            <label for="cityname" class="form-label">City</label>
+                                                            <input type="text" class="form-control" id="cityname" name="cityname" placeholder="Enter your city" readonly>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label for="statename" class="form-label">State</label>
+                                                            <input type="text" class="form-control" id="statename" name="statename" placeholder="Enter your state" readonly>
+                                                        </div>
+                                                        <div class="col-md-4 mb-3">
+                                                            <label for="addresspincode" class="form-label">Pincode</label>
+                                                            <input type="text" class="form-control" id="addresspincode" name="addresspincode" placeholder="Enter your pincode" readonly>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- End of Individual Fields -->
+                                            </form>
+                                        </div>
+                                        <!-- Profile Action Button -->
+                                        <div class="card-footer">
+                                            <button type="button" class="btn btn-primary" onclick="editProfile()">
+                                                <i class="fas fa-edit me-2"></i>Edit Profile
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Company Information Form (for Corporate Users) -->
+                                    <div class="card mb-4" id="companyInfoCard" style="display: none;">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">
+                                                <i class="fas fa-building me-2"></i>Company Information
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="companyForm">
+                                                <div class="row">
+                                                    <div class="col-md-12 mb-3">
+                                                        <label for="companyName" class="form-label">Company Name</label>
+                                                        <input type="text" class="form-control" id="companyName" readonly required>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- ID Type Selection for Company -->
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="companyIdSelect" class="form-label">Select ID Type</label>
+                                                        <div class="select-wrapper">
+                                                            <select class="form-select" id="companyIdSelect" name="companyIdSelect" readonly disabled>
+                                                                <option value="pan" selected>PAN Number</option>
+                                                                <option value="cin">CIN Number</option>
+                                                            </select>
+                                                            <i class="fas fa-chevron-down select-arrow"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 mb-3" id="companyPanGroup">
+                                                        <label for="companyPanNumber" class="form-label">Company PAN Number</label>
+                                                        <input type="text" class="form-control" id="companyPanNumber" readonly placeholder="Enter PAN Number">
+                                                    </div>
+                                                    <div class="col-md-6 mb-3" id="companyCinGroup" style="display:none">
+                                                        <label for="companyCinNumber" class="form-label">CIN Number</label>
+                                                        <input type="text" class="form-control" id="companyCinNumber" readonly placeholder="Enter CIN Number">
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- PAN/CIN Fields -->
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="gstNumber" class="form-label">GST Number</label>
+                                                        <input type="text" class="form-control" id="gstNumber" readonly placeholder="Enter GST Number">
+                                                    </div>
+                                                    
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="companyAddressLine1" class="form-label">Address Line 1</label>
+                                                        <input type="text" class="form-control" id="companyAddressLine1" readonly placeholder="Enter address line 1">
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label for="companyAddressLine2" class="form-label">Address Line 2</label>
+                                                        <input type="text" class="form-control" id="companyAddressLine2" readonly placeholder="Enter address line 2 (optional)">
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="companyCity" class="form-label">City</label>
+                                                        <input type="text" class="form-control" id="companyCity" readonly placeholder="Enter city">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="companyState" class="form-label">State</label>
+                                                        <input type="text" class="form-control" id="companyState" readonly placeholder="Enter state">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="companyPincode" class="form-label">Pincode</label>
+                                                        <input type="text" class="form-control" id="companyPincode" readonly placeholder="Enter pincode">
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <!-- Company Action Button -->
+                                        <div class="card-footer">
+                                            <button type="button" class="btn btn-primary" id="editCompanyBtn" onclick="editCompanyInfo()">
+                                                <i class="fas fa-edit me-2"></i>Edit Company Info
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <!-- Wallet Details -->
+                    {% comment %} <div class="sidebar-card">
+                        <h3 class="sidebar-title">
+                            <i class="fas fa-wallet"></i>
+                            Wallet Details
+                        </h3>   
+                        <div class="wallet-details">
+                            <div class="wallet-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">Free Credits</span>
+                                    <span class="fw-bold text-success" id="freeCredits">0</span>
+                                </div>
+                            </div>
+                            <div class="wallet-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">Paid Credits</span>
+                                    <span class="fw-bold text-primary" id="paidCredits">0</span>
+                                </div>
+                            </div>
+                            <div class="wallet-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                                    <span class="fw-bold">Total Credits</span>
+                                    <span class="fw-bold text-dark" id="totalCreditswallet">0</span>
+                                </div>
+                            </div>
+                            <div class="wallet-item">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    <span id="creditResetDate">Credits reset on:</span>
+                                </small>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary-custom mt-3">
+                            <i class="fas fa-plus me-2"></i>
+                            Buy Credits
+                        </button>
+                    </div> {% endcomment %}
+
+                    <!-- Contact Information -->
+                    <div class="sidebar-card">
+                        <h3 class="sidebar-title" id="sidebarInfoTitle">
+                            <i class="fas fa-address-book"></i>
+                            Company Information
+                        </h3>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="contact-info">
+                                <div class="contact-label" id="sidebarCompanyLabel">Company</div>
+                                <div class="contact-value" id="sidebarCompanyName">Company name</div>
+                            </div>
+                        </div>
+                        <!-- ID Document (PAN/Aadhar) for Individual Sellers -->
+                        <div class="contact-item" id="sidebarIdDocItem" style="display: none;">
+                            <div class="contact-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="contact-info">
+                                <div class="contact-label" id="sidebarIdDocLabel">ID</div>
+                                <div class="contact-value" id="sidebarIdDocValue">-</div>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-info">
+                                <div class="contact-label">Email</div>
+                                <div class="contact-value" id="sidebarEmail">Email</div>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-info">
+                                <div class="contact-label">Phone</div>
+                                <div class="contact-value" id="sidebarPhone">Phone</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Modal for First-Time Users -->
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px;">
+                <div class="modal-header pt-4 border-0 text-center">
+                    <div class="w-100">
+                        <div class="welcome-icon mb-3">
+                            <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                        </div>
+                        <h4 class="modal-title text-success fw-bold" id="welcomeModalLabel">
+                            Thank You for Registering!
+                        </h4>
+                    </div>
+                </div>
+                <div class="modal-body text-center ">
+                    <p class="text-muted" style="font-size: 1.1rem;">
+                        Welcome to WasteBazar! Your account has been successfully created. 
+                        Start your journey by posting your first listing and connect with buyers across India.
+                    </p>
+                    
+                </div>
+                <div class="modal-footer border-0 justify-content-center pb-4">
+                    <a href="/listing-form/" class="btn btn-primary btn-md px-5 py-3" style="border-radius: 50px;">
+                        <i class="fas fa-plus me-2"></i>Post Your First Listing
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary btn-md px-4 py-3 ms-3" style="border-radius: 50px;" data-bs-dismiss="modal">
+                        Maybe Later
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/api_caller.js"></script>
+    <script src="/static/js/sellerprofile.js"></script>
+    
+    <script>
+        // Check for first-time user parameter and show welcome modal
+        function checkFirstTimeUser() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isFirstTime = urlParams.get('first');
+            
+            if (isFirstTime === '1') {
+                // Show the welcome modal
+                const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                
+                // Small delay to ensure page is fully loaded
+                setTimeout(() => {
+                    welcomeModal.show();
+                }, 500);
+                
+                // Remove the query parameter from URL without refreshing
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+                
+                console.log('🎉 Welcome modal shown for first-time user');
+            }
+        }
+
+        // Pass the CSRF token and API endpoints 
+        window.onload = async function () {
+            // Check for first-time user
+            checkFirstTimeUser();
+            
+            await SellerProfileApp(
+                "{{ csrf_token }}", 
+                "/user-api/user-details-api/", 
+                "/marketplace-api/seller-listings/", 
+                
+            );
+        }
+
+        
+    </script>
+    <script src="/static/js/loader.js"></script>
+    
+
+</body>
+</html>

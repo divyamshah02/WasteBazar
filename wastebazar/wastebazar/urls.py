@@ -10,7 +10,7 @@ urlpatterns = [
 
     path('', include('FrontEnd.urls')),
     path('user-api/', include('UserDetail.urls')),
-    # path('marketplace-api/', include('MarketPlace.urls')),
+    path('marketplace-api/', include('MarketPlace.urls')),
     
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
