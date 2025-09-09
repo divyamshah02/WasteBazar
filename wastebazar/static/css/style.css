@@ -40,6 +40,22 @@ body {
     color: var(--text-dark);
     overflow-x: hidden;
     background: var(--bg-light);
+    /* padding-top: 160px; */
+    /* Account for fixed navbar wrapper with main nav + category nav */
+}
+
+/* Content spacing for pages without hero section */
+.main-content {
+    margin-top: 2rem;
+}
+
+/* Override padding-top for hero section pages */
+.hero-section {
+    margin-top: 0 !important;
+}
+
+body:has(.hero-section) {
+    /* padding-top: 160px; */
 }
 
 /* Custom Scrollbar */
@@ -398,18 +414,66 @@ body {
     }
 }
 
+/* Navbar Wrapper */
+.navbar-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-md);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+/* Main Navbar */
+.navbar-main {
+    background: transparent;
+    /* padding: 1rem 0; */
+    margin: 0;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Category Navigation Section */
+.category-nav-section {
+    background: white;
+    width: 100%;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
 /* Navbar Styles */
 .navbar {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     box-shadow: var(--shadow-md);
-    padding: 1rem 0;
+    /* padding: 1rem 0; */
     transition: all 0.3s ease;
     position: fixed;
+    flex-direction: column;
     width: 100%;
     top: 0;
     z-index: 1000;
     border-bottom: 1px solid var(--glass-border);
+}
+
+/* Category navigation container */
+.navbar .w-100.border-top {
+    background: white !important;
+    border-top: 1px solid var(--border-color) !important;
+    position: relative;
+    z-index: 999;
+    display: block !important;
+    width: 100% !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar .w-100.border-top .container {
+    padding: 0 1rem;
+    max-width: 100%;
+    width: 100%;
 }
 
 .navbar.scrolled {
@@ -702,6 +766,168 @@ body {
     }
 }
 
+/* Category Navigation Styles */
+.category-nav-list {
+    display: flex !important;
+    list-style: none;
+    margin: 0;
+    justify-content: center;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+    background: white;
+    min-height: 60px;
+    align-items: center;
+    gap: 0.5rem;
+    /* Add gap between items */
+}
+
+.category-nav-list::-webkit-scrollbar {
+    display: none;
+    /* WebKit */
+}
+
+.category-item {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.category-link {
+    display: inline-block !important;
+    padding: 0rem 1.5rem;
+    color: var(--text-dark) !important;
+    text-decoration: none;
+    font-weight: 500;
+    gap: 5px;
+
+    width: fit-content;
+    font-size: 0.95rem;
+    /* border-radius: 25px; */
+    transition: all 0.3s ease;
+    position: relative;
+    /* background: var(--bg-light); */
+    /* border: 1px solid var(--border-color); */
+    cursor: pointer;
+    /* white-space: nowrap; */
+}
+
+.category-link:hover {
+    /* color: white !important; */
+    /* background: var(--primary-color) !important; */
+    font-weight: 700;
+
+    /* border-color: var(--primary-color) !important; */
+    /* transform: translateY(-2px); */
+    /* box-shadow: var(--shadow-md); */
+    /* text-decoration: underline; */
+}
+
+.category-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-xl);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    min-width: 250px;
+    margin-top: 0.5rem;
+}
+
+.category-item:hover .category-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-content {
+    padding: 1rem;
+}
+
+.category-section {
+    margin-bottom: 0;
+}
+
+.category-sublink {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 400;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+}
+
+.category-sublink:hover {
+    color: var(--primary-color);
+    background: var(--primary-light);
+    transform: translateX(5px);
+}
+
+.category-sublink:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsive category navigation */
+@media (max-width: 991.98px) {
+    .category-nav-list {
+        padding: 0.75rem 0;
+        gap: 0.5rem;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .category-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 20px;
+    }
+
+    .category-dropdown {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        border: none;
+        background: var(--bg-light);
+        border-radius: 8px;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .category-item:hover .category-dropdown {
+        display: block;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .category-nav-list {
+        padding: 0.5rem 0;
+        gap: 0.25rem;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .category-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        border-radius: 15px;
+    }
+}
+
 /* Hero Section */
 .hero-section {
     background: linear-gradient(135deg, #0074E8 0%, #E13CCF 30%, #8B5CF6 60%, #EC4899 100%);
@@ -710,10 +936,10 @@ body {
     align-items: center;
     position: relative;
     overflow: hidden;
-    margin-top: 95px;
-    /* Adjusted for fixed navbar */
-    padding-top: 50px;
-    /* Space for the navbar */
+    margin-top: -160px;
+    /* Offset the body padding for hero sections */
+    padding-top: 200px;
+    /* Space for the navbar wrapper plus some breathing room */
 }
 
 .hero-section::before {

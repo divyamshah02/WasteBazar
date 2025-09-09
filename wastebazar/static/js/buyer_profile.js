@@ -930,13 +930,6 @@ function showSuccess(message) {
 function postNewRequirement() {
     console.log('📝 Post new requirement clicked');
 
-    // Check if account is verified first
-    if (buyerData && buyerData.corporate_details &&
-        (buyerData.corporate_details.is_approved === false || buyerData.corporate_details.is_approved === 'false')) {
-        showError('Your account is under verification. Please wait for approval before posting requirements.');
-        return;
-    }
-
     // Check if user has sufficient credits
     if (buyerData && buyerData.wallet_details && !buyerData.wallet_details.message) {
         const freeCredits = buyerData.wallet_details.free_credits || 0;
@@ -1785,7 +1778,7 @@ window.addEventListener('focus', function () {
 
 console.log('🔐 WasteBazar Buyer Profile System Loaded');
 
-// Initialize the buyer profile when page loads
+// Initialize postNewRequirementthe buyer profile when page loads
 /**
  * Calculate profile completion percentage for individual users
  */

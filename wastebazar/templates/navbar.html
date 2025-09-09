@@ -1,106 +1,237 @@
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg" id="navbar">
-    <div class="container">
-        <a class="navbar-brand" href="/">WasteBazar</a>
-        
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mx-auto">
-                <!-- Categories and Marketplace (always visible) -->
-                <li class="nav-item dropdown mega-dropdown">
-                    <a class="nav-link" href="#" id="categoriesDropdown" role="button" aria-expanded="false">
-                        <i class="fas fa-th-list me-1"></i>Categories
-                    </a>
-                    <div class="dropdown-menu mega-dropdown-menu">
-                        <div class="container">
-                            <div class="row">
-                                <!-- Plastic Waste Category -->
-                                <div class="col-md-12">
-                                    <div class="mega-dropdown-column">
-                                        <a href="/marketplace/?category=plastic" class="mega-dropdown-header">
-                                            <i class="fas fa-recycle me-2"></i>Plastic Waste
-                                        </a>
-                                        <a href="/marketplace/?category=paper" class="mega-dropdown-header">
-                                            <i class="fas fa-newspaper me-2"></i>Paper Waste
-                                        </a>
-                                        
-                                        <a href="/marketplace/?category=electronics" class="mega-dropdown-header">
-                                            <i class="fas fa-microchip me-2"></i>Electronic Waste
-                                        </a>
-                                        <a href="/marketplace/?category=metal" class="mega-dropdown-header">
-                                            <i class="fas fa-industry me-2"></i>Metal Scrap
-                                        </a>
-                                    </div>
-                                </div>
-
-                            </div>
-                            
-                            
-                        </div>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/marketplace/">
-                        <i class="fas fa-store me-1"></i>Marketplace
-                    </a>
-                </li>
-
-                <!-- Role-specific navigation for logged-in users (hidden by default) -->
-                <!-- Buyer-specific navigation (hidden by default) -->
-                <li class="nav-item" id="buyer-nav-item" style="display: none;">
-                    <a class="nav-link" href="/requirement-form/">
-                        <i class="fas fa-plus-circle me-1"></i>Post Requirement
-                    </a>
-                </li>
-                <!-- Seller-specific navigation (hidden by default) -->
-                <li class="nav-item" id="seller-nav-item" style="display: none;">
-                    <a class="nav-link" href="/listing-form/">
-                        <i class="fas fa-plus-square me-1"></i>Post Listing
-                    </a>
-                </li>
-            </ul>
+<div class="fixed-top navbar-wrapper">
+    <!-- Main Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-main" id="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="/">WasteBazar</a>
             
-            <!-- Conditional Authentication Section -->
-            <div id="auth-section" class="z-1000">
-                <!-- This will be populated by JavaScript based on localStorage -->
-                <!-- Default to login/register buttons, JS will replace if user is logged in -->
-                <div class=" gap-2" id="login-buttons">
-                    <a href="/directlogin" class="btn btn-outline-primary">Login</a>
-                    <a href="/register" class="btn-registration">Register</a>
-                </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <!-- Categories and Marketplace (always visible) -->
+                    <li class="nav-item dropdown mega-dropdown">
+                        <a class="nav-link" href="#" id="categoriesDropdown" role="button" aria-expanded="false">
+                            <i class="fas fa-th-list me-1"></i>Good deals
+                        </a>
+                        <div class="dropdown-menu mega-dropdown-menu">
+                            <div class="container">
+                                <div class="row">
+                                    <!-- Plastic Waste Category -->
+                                    <div class="col-md-12">
+                                        <div class="mega-dropdown-column">
+                                            <a href="/marketplace/?category=plastic" class="mega-dropdown-header">
+                                                <i class="fas fa-recycle me-2"></i>Plastic Waste
+                                            </a>
+                                            <a href="/marketplace/?category=paper" class="mega-dropdown-header">
+                                                <i class="fas fa-newspaper me-2"></i>Paper Waste
+                                            </a>
+                                            
+                                            <a href="/marketplace/?category=electronics" class="mega-dropdown-header">
+                                                <i class="fas fa-microchip me-2"></i>Electronic Waste
+                                            </a>
+                                            <a href="/marketplace/?category=metal" class="mega-dropdown-header">
+                                                <i class="fas fa-industry me-2"></i>Metal Scrap
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                
+                                
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/marketplace/">
+                            <i class="fas fa-store me-1"></i>Marketplace
+                        </a>
+                    </li>
+
+                    <!-- Role-specific navigation for logged-in users (hidden by default) -->
+                    <!-- Buyer-specific navigation (hidden by default) -->
+                    <li class="nav-item" id="buyer-nav-item" style="display: none;">
+                        <a class="nav-link" href="/requirement-form/">
+                            <i class="fas fa-plus-circle me-1"></i>Post Requirement
+                        </a>
+                    </li>
+                    <!-- Seller-specific navigation (hidden by default) -->
+                    <li class="nav-item" id="seller-nav-item" style="display: none;">
+                        <a class="nav-link" href="/listing-form/">
+                            <i class="fas fa-plus-square me-1"></i>Post Listing
+                        </a>
+                    </li>
+                </ul>
                 
-                <!-- User dropdown (hidden by default) -->
-                <div class="dropdown " id="user-dropdown" style="display: none;">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user-circle me-1" style="font-size: 1.5rem;"></i>
-                        <span class="d-none d-md-inline" id="user-display-name">User</span>
-                    </a>
-                    <ul class="dropdown-menu  dropdown-menu-end" aria-labelledby="userDropdown">
-                        <li>
-                            <a class="dropdown-item" href="/profile/" id="profile-link">
-                                <i class="fas fa-user me-2"></i>Profile
-                            </a>
-                        </li>
-                        
-                        <li>
-                            <a class="dropdown-item" href="#" id="logout-link">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                            </a>
-                        </li>
-                        
-                    </ul>
+                <!-- Conditional Authentication Section -->
+                <div id="auth-section" class="z-1000">
+                    <!-- This will be populated by JavaScript based on localStorage -->
+                    <!-- Default to login/register buttons, JS will replace if user is logged in -->
+                    <div class=" gap-2" id="login-buttons">
+                        <a href="/directlogin" class="btn btn-outline-primary">Login</a>
+                        <a href="/register" class="btn-registration">Register</a>
+                    </div>
+                    
+                    <!-- User dropdown (hidden by default) -->
+                    <div class="dropdown " id="user-dropdown" style="display: none;">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1" style="font-size: 1.5rem;"></i>
+                            <span class="d-none d-md-inline" id="user-display-name">User</span>
+                        </a>
+                        <ul class="dropdown-menu  dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="/profile/" id="profile-link">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a>
+                            </li>
+                            
+                            <li>
+                                <a class="dropdown-item" href="#" id="logout-link">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
+                            
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        
+         <!-- Full-width Category Navigation -->
+    <div class="category-nav-section">
+        <div class="container-fluid">
+            <ul class="category-nav-list">
+                <li class="category-item">
+                    <a href="/marketplace/?category=smartphones" class="category-link">
+                        Smartphones
+                    </a>
+                    <div class="category-dropdown">
+                        <div class="dropdown-content">
+                            <div class="category-section">
+                                <a href="/marketplace/?category=smartphones&brand=iphone" class="category-sublink">iPhone</a>
+                                <a href="/marketplace/?category=smartphones&brand=samsung" class="category-sublink">Samsung Galaxy</a>
+                                <a href="/marketplace/?category=smartphones&brand=google" class="category-sublink">Google Pixel</a>
+                                <a href="/marketplace/?category=smartphones&brand=android" class="category-sublink">Android smartphones</a>
+                                <a href="/marketplace/?category=smartphone-accessories" class="category-sublink">Smartphone Accessories</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="category-item">
+                    <a href="/marketplace/?category=laptops" class="category-link">
+                        Laptops
+                    </a>
+                    <div class="category-dropdown">
+                        <div class="dropdown-content">
+                            <div class="category-section">
+                                <a href="/marketplace/?category=laptops&brand=macbook" class="category-sublink">MacBook</a>
+                                <a href="/marketplace/?category=laptops&brand=windows" class="category-sublink">Windows Laptops</a>
+                                <a href="/marketplace/?category=laptops&brand=gaming" class="category-sublink">Gaming Laptops</a>
+                                <a href="/marketplace/?category=laptops&brand=chromebook" class="category-sublink">Chromebooks</a>
+                                <a href="/marketplace/?category=laptop-accessories" class="category-sublink">Laptop Accessories</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="category-item">
+                    <a href="/marketplace/?category=tablets" class="category-link">
+                        Tablets
+                    </a>
+                    <div class="category-dropdown">
+                        <div class="dropdown-content">
+                            <div class="category-section">
+                                <a href="/marketplace/?category=tablets&brand=ipad" class="category-sublink">iPad</a>
+                                <a href="/marketplace/?category=tablets&brand=android" class="category-sublink">Android Tablets</a>
+                                <a href="/marketplace/?category=tablets&brand=windows" class="category-sublink">Windows Tablets</a>
+                                <a href="/marketplace/?category=tablet-accessories" class="category-sublink">Tablet Accessories</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="category-item">
+                    <a href="/marketplace/?category=gaming-consoles" class="category-link">
+                        Gaming consoles
+                    </a>
+                    <div class="category-dropdown">
+                        <div class="dropdown-content">
+                            <div class="category-section">
+                                <a href="/marketplace/?category=gaming-consoles&brand=playstation" class="category-sublink">PlayStation</a>
+                                <a href="/marketplace/?category=gaming-consoles&brand=xbox" class="category-sublink">Xbox</a>
+                                <a href="/marketplace/?category=gaming-consoles&brand=nintendo" class="category-sublink">Nintendo Switch</a>
+                                <a href="/marketplace/?category=gaming-accessories" class="category-sublink">Gaming Accessories</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="category-item">
+                    <a href="/marketplace/?category=smartwatches" class="category-link">
+                        Smartwatches
+                    </a>
+                    <div class="category-dropdown">
+                        <div class="dropdown-content">
+                            <div class="category-section">
+                                <a href="/marketplace/?category=smartwatches&brand=apple" class="category-sublink">Apple Watch</a>
+                                <a href="/marketplace/?category=smartwatches&brand=samsung" class="category-sublink">Samsung Galaxy Watch</a>
+                                <a href="/marketplace/?category=smartwatches&brand=fitbit" class="category-sublink">Fitbit</a>
+                                <a href="/marketplace/?category=smartwatches&brand=garmin" class="category-sublink">Garmin</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="category-item">
+                    <a href="/marketplace/?category=audio" class="category-link">
+                        Audio
+                    </a>
+                    <div class="category-dropdown">
+                        <div class="dropdown-content">
+                            <div class="category-section">
+                                <a href="/marketplace/?category=audio&type=headphones" class="category-sublink">Headphones</a>
+                                <a href="/marketplace/?category=audio&type=earbuds" class="category-sublink">Earbuds</a>
+                                <a href="/marketplace/?category=audio&type=speakers" class="category-sublink">Speakers</a>
+                                <a href="/marketplace/?category=audio&type=soundbars" class="category-sublink">Soundbars</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="category-item">
+                    <a href="/marketplace/?category=home-appliances" class="category-link">
+                        Home appliances
+                    </a>
+                    <div class="category-dropdown">
+                        <div class="dropdown-content">
+                            <div class="category-section">
+                                <a href="/marketplace/?category=home-appliances&type=kitchen" class="category-sublink">Kitchen Appliances</a>
+                                <a href="/marketplace/?category=home-appliances&type=cleaning" class="category-sublink">Cleaning Appliances</a>
+                                <a href="/marketplace/?category=home-appliances&type=smart-home" class="category-sublink">Smart Home</a>
+                                <a href="/marketplace/?category=home-appliances&type=air-care" class="category-sublink">Air Care</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="category-item">
+                    <a href="/marketplace/?category=more" class="category-link">
+                        More
+                    </a>
+                    <div class="category-dropdown">
+                        <div class="dropdown-content">
+                            <div class="category-section">
+                                <a href="/marketplace/?category=cameras" class="category-sublink">Cameras</a>
+                                <a href="/marketplace/?category=tv-monitors" class="category-sublink">TV & Monitors</a>
+                                <a href="/marketplace/?category=accessories" class="category-sublink">Accessories</a>
+                                <a href="/marketplace/?category=all" class="category-sublink">View All Categories</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
-        
+    </nav>
+    
+   
+</div>
 <!-- Include Status Bar -->
-
-</nav>
 {% include 'statusbar.html' %}
 
 
@@ -208,5 +339,42 @@
             if (sellerNavItem) sellerNavItem.style.display = 'none';
         }
         }, 500); // 500ms delay
+    });
+
+    // Category Navigation Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set Smartphones as active by default (matching the image)
+        const smartphonesLink = document.querySelector('a[href="/marketplace/?category=smartphones"]');
+        if (smartphonesLink) {
+            smartphonesLink.classList.add('active');
+        }
+
+        // Handle category link clicks
+        const categoryLinks = document.querySelectorAll('.category-link');
+        categoryLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Remove active class from all links
+                categoryLinks.forEach(l => l.classList.remove('active'));
+                // Add active class to clicked link
+                this.classList.add('active');
+            });
+        });
+
+        // Handle dropdown visibility with better z-index management
+        const categoryItems = document.querySelectorAll('.category-item');
+        categoryItems.forEach(item => {
+            const dropdown = item.querySelector('.category-dropdown');
+            if (dropdown) {
+                item.addEventListener('mouseenter', function() {
+                    dropdown.style.zIndex = '2001';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    setTimeout(() => {
+                        dropdown.style.zIndex = '2000';
+                    }, 300);
+                });
+            }
+        });
     });
 </script>
